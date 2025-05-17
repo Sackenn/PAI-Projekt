@@ -41,6 +41,30 @@ public class User {
     @JsonIgnore
     private Set<Board> memberOfBoards = new HashSet<>();
 
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "list-owner")
+    private Set<BoardList> ownedLists = new HashSet<>();
+
+    @ManyToMany(mappedBy = "members")
+    @JsonIgnore
+    private Set<BoardList> memberOfLists = new HashSet<>();
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "card-owner")
+    private Set<Card> ownedCards = new HashSet<>();
+
+    @ManyToMany(mappedBy = "members")
+    @JsonIgnore
+    private Set<Card> memberOfCards = new HashSet<>();
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "task-owner")
+    private Set<Task> ownedTasks = new HashSet<>();
+
+    @ManyToMany(mappedBy = "members")
+    @JsonIgnore
+    private Set<Task> memberOfTasks = new HashSet<>();
+
     public User() {
     }
 
@@ -96,5 +120,53 @@ public class User {
 
     public void setMemberOfBoards(Set<Board> memberOfBoards) {
         this.memberOfBoards = memberOfBoards;
+    }
+
+    public Set<BoardList> getOwnedLists() {
+        return ownedLists;
+    }
+
+    public void setOwnedLists(Set<BoardList> ownedLists) {
+        this.ownedLists = ownedLists;
+    }
+
+    public Set<BoardList> getMemberOfLists() {
+        return memberOfLists;
+    }
+
+    public void setMemberOfLists(Set<BoardList> memberOfLists) {
+        this.memberOfLists = memberOfLists;
+    }
+
+    public Set<Card> getOwnedCards() {
+        return ownedCards;
+    }
+
+    public void setOwnedCards(Set<Card> ownedCards) {
+        this.ownedCards = ownedCards;
+    }
+
+    public Set<Card> getMemberOfCards() {
+        return memberOfCards;
+    }
+
+    public void setMemberOfCards(Set<Card> memberOfCards) {
+        this.memberOfCards = memberOfCards;
+    }
+
+    public Set<Task> getOwnedTasks() {
+        return ownedTasks;
+    }
+
+    public void setOwnedTasks(Set<Task> ownedTasks) {
+        this.ownedTasks = ownedTasks;
+    }
+
+    public Set<Task> getMemberOfTasks() {
+        return memberOfTasks;
+    }
+
+    public void setMemberOfTasks(Set<Task> memberOfTasks) {
+        this.memberOfTasks = memberOfTasks;
     }
 }

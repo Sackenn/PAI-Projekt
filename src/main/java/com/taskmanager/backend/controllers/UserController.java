@@ -11,7 +11,7 @@ import javax.validation.Valid;
 import java.util.Optional;
 
 /**
- * Controller for managing user profiles
+ * Kontroler do zarzadzania profilami uzytkownikow
  */
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -21,62 +21,62 @@ public class UserController {
     private UserRepository userRepository;
 
     /**
-     * Get a user profile by ID
-     * @param userId the ID of the user
-     * @return the user profile
+     * Pobierz profil uzytkownika po ID
+     * @param userId ID uzytkownika
+     * @return profil uzytkownika
      */
     @GetMapping("/profile/{userId}")
     public ResponseEntity<?> getUserProfile(@PathVariable Long userId) {
         Optional<User> userOptional = userRepository.findById(userId);
         if (!userOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: User not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik nie znaleziony!"));
         }
 
         User user = userOptional.get();
-        // Don't return the password
+        // Nie zwracaj hasla
         user.setPassword(null);
 
         return ResponseEntity.ok(user);
     }
 
     /**
-     * Update a user profile
-     * @param userId the ID of the user to update
-     * @param userUpdate the updated user data
-     * @return success message if update is successful
+     * Aktualizuj profil uzytkownika
+     * @param userId ID uzytkownika do aktualizacji
+     * @param userUpdate zaktualizowane dane uzytkownika
+     * @return komunikat o powodzeniu, jesli aktualizacja sie powiodla
      */
     @PutMapping("/profile/{userId}")
     public ResponseEntity<?> updateUserProfile(@PathVariable Long userId, @Valid @RequestBody User userUpdate) {
         Optional<User> userOptional = userRepository.findById(userId);
         if (!userOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: User not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik nie znaleziony!"));
         }
 
         User user = userOptional.get();
 
-        // Check if username is being changed and if it's already taken
+        // Sprawdz czy nazwa uzytkownika jest zmieniana i czy jest juz zajeta
         if (!user.getUsername().equals(userUpdate.getUsername()) && 
             userRepository.existsByUsername(userUpdate.getUsername())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Nazwa uzytkownika jest juz zajeta!"));
         }
 
-        // Check if email is being changed and if it's already in use
+        // Sprawdz czy email jest zmieniany i czy jest juz w uzyciu
         if (!user.getEmail().equals(userUpdate.getEmail()) && 
             userRepository.existsByEmail(userUpdate.getEmail())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already in use!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Email jest juz w uzyciu!"));
         }
 
-        // Update user fields
+        // Aktualizuj pola uzytkownika
         user.setUsername(userUpdate.getUsername());
         user.setEmail(userUpdate.getEmail());
 
-        // Update password if provided (no encryption for simplicity)
+        // Aktualizuj haslo jesli podane (bez szyfrowania dla uproszczenia)
         if (userUpdate.getPassword() != null && !userUpdate.getPassword().isEmpty()) {
             user.setPassword(userUpdate.getPassword());
         }
 
         userRepository.save(user);
 
-        return ResponseEntity.ok(new MessageResponse("User profile updated successfully!"));
+        return ResponseEntity.ok(new MessageResponse("Profil uzytkownika zaktualizowany pomyslnie!"));
     }
 }

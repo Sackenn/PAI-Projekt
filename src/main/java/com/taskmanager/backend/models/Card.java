@@ -37,6 +37,11 @@ public class Card {
     @JsonBackReference
     private BoardList list;
 
+    @ManyToOne
+    @JoinColumn(name = "owner_id", nullable = false)
+    @JsonBackReference(value = "card-owner")
+    private User owner;
+
     @ManyToMany
     @JoinTable(
         name = "card_members",
@@ -51,18 +56,19 @@ public class Card {
     private List<Task> tasks = new ArrayList<>();
 
     @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
     private Set<Label> labels = new HashSet<>();
 
     public Card() {
     }
 
-    public Card(String title, String description, int position, BoardList list) {
+    public Card(String title, String description, int position, BoardList list, User owner) {
         this.title = title;
         this.description = description;
         this.position = position;
         this.list = list;
+        this.owner = owner;
         this.creationDate = LocalDateTime.now();
+        this.startDate = this.creationDate;
     }
 
     public Long getId() {
@@ -119,6 +125,14 @@ public class Card {
 
     public void setList(BoardList list) {
         this.list = list;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 
     public Set<User> getMembers() {

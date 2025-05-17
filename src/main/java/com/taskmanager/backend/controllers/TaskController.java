@@ -32,36 +32,50 @@ public class TaskController {
 
     @GetMapping
     public ResponseEntity<?> getCardTasks(@PathVariable Long boardId, @PathVariable Long listId, 
-                                         @PathVariable Long cardId) {
+                                         @PathVariable Long cardId, @RequestParam Long userId) {
         Optional<Board> boardOptional = boardRepository.findById(boardId);
         if (!boardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Board not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
         }
 
         Board board = boardOptional.get();
 
         Optional<BoardList> listOptional = boardListRepository.findById(listId);
         if (!listOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie znaleziona!"));
         }
 
         BoardList list = listOptional.get();
 
-        // Check if list belongs to the specified board
+        // Sprawdz czy lista nalezy do okreslonej tablicy
         if (!list.getBoard().getId().equals(boardId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List does not belong to the specified board!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie nalezy do okreslonej tablicy!"));
         }
 
         Optional<Card> cardOptional = cardRepository.findById(cardId);
         if (!cardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Card not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Karta nie znaleziona!"));
         }
 
         Card card = cardOptional.get();
 
-        // Check if card belongs to the specified list
+        // Sprawdz czy karta nalezy do okreslonej listy
         if (!card.getList().getId().equals(listId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Card does not belong to the specified list!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Karta nie nalezy do okreslonej listy!"));
+        }
+
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (!userOptional.isPresent()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik nie znaleziony!"));
+        }
+        User user = userOptional.get();
+
+        // Sprawdz czy uzytkownik jest wlascicielem tablicy, czlonkiem tablicy, wlascicielem listy, czlonkiem listy,
+        // wlascicielem karty lub czlonkiem karty
+        if (!board.getOwner().equals(user) && !board.getMembers().contains(user) && 
+            !list.getOwner().equals(user) && !list.getMembers().contains(user) &&
+            !card.getOwner().equals(user) && !card.getMembers().contains(user)) {
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Nie masz uprawnien do przegladania zadan tej karty!"));
         }
 
         List<Task> tasks = taskRepository.findByCard(card);
@@ -71,39 +85,50 @@ public class TaskController {
 
     @PostMapping
     public ResponseEntity<?> createTask(@PathVariable Long boardId, @PathVariable Long listId, 
-                                       @PathVariable Long cardId, @Valid @RequestBody Task taskRequest) {
+                                       @PathVariable Long cardId, @Valid @RequestBody Task taskRequest, @RequestParam Long userId) {
         Optional<Board> boardOptional = boardRepository.findById(boardId);
         if (!boardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Board not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
         }
 
         Board board = boardOptional.get();
 
         Optional<BoardList> listOptional = boardListRepository.findById(listId);
         if (!listOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie znaleziona!"));
         }
 
         BoardList list = listOptional.get();
 
-        // Check if list belongs to the specified board
+        // Sprawdz czy lista nalezy do okreslonej tablicy
         if (!list.getBoard().getId().equals(boardId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List does not belong to the specified board!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie nalezy do okreslonej tablicy!"));
         }
 
         Optional<Card> cardOptional = cardRepository.findById(cardId);
         if (!cardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Card not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Karta nie znaleziona!"));
         }
 
         Card card = cardOptional.get();
 
-        // Check if card belongs to the specified list
+        // Sprawdz czy karta nalezy do okreslonej listy
         if (!card.getList().getId().equals(listId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Card does not belong to the specified list!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Karta nie nalezy do okreslonej listy!"));
         }
 
-        Task task = new Task(taskRequest.getDescription(), card);
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (!userOptional.isPresent()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik nie znaleziony!"));
+        }
+        User user = userOptional.get();
+
+        // Sprawdz czy uzytkownik jest wlascicielem karty lub czlonkiem karty
+        if (!card.getOwner().equals(user) && !card.getMembers().contains(user)) {
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel karty lub czlonkowie moga tworzyc zadania!"));
+        }
+
+        Task task = new Task(taskRequest.getDescription(), card, user);
         taskRepository.save(task);
 
         return ResponseEntity.ok(task);
@@ -112,51 +137,67 @@ public class TaskController {
     @PutMapping("/{taskId}")
     public ResponseEntity<?> updateTask(@PathVariable Long boardId, @PathVariable Long listId, 
                                        @PathVariable Long cardId, @PathVariable Long taskId, 
-                                       @Valid @RequestBody Task taskRequest) {
+                                       @RequestBody Task taskRequest, @RequestParam Long userId) {
         Optional<Board> boardOptional = boardRepository.findById(boardId);
         if (!boardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Board not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
         }
 
         Board board = boardOptional.get();
 
         Optional<BoardList> listOptional = boardListRepository.findById(listId);
         if (!listOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie znaleziona!"));
         }
 
         BoardList list = listOptional.get();
 
-        // Check if list belongs to the specified board
+        // Sprawdz czy lista nalezy do okreslonej tablicy
         if (!list.getBoard().getId().equals(boardId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List does not belong to the specified board!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie nalezy do okreslonej tablicy!"));
         }
 
         Optional<Card> cardOptional = cardRepository.findById(cardId);
         if (!cardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Card not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Karta nie znaleziona!"));
         }
 
         Card card = cardOptional.get();
 
-        // Check if card belongs to the specified list
+        // Sprawdz czy karta nalezy do okreslonej listy
         if (!card.getList().getId().equals(listId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Card does not belong to the specified list!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Karta nie nalezy do okreslonej listy!"));
         }
 
         Optional<Task> taskOptional = taskRepository.findById(taskId);
         if (!taskOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Task not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Zadanie nie znalezione!"));
         }
 
         Task task = taskOptional.get();
 
-        // Check if task belongs to the specified card
+        // Sprawdz czy zadanie nalezy do okreslonej karty
         if (!task.getCard().getId().equals(cardId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Task does not belong to the specified card!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Zadanie nie nalezy do okreslonej karty!"));
         }
 
-        task.setDescription(taskRequest.getDescription());
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (!userOptional.isPresent()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik nie znaleziony!"));
+        }
+        User user = userOptional.get();
+
+        // Sprawdz czy uzytkownik jest wlascicielem zadania lub czlonkiem zadania
+        if (!task.getOwner().equals(user) && !task.getMembers().contains(user)) {
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel zadania lub czlonkowie moga je aktualizowac!"));
+        }
+
+        // Aktualizuj opis tylko jesli jest podany w zadaniu
+        if (taskRequest.getDescription() != null && !taskRequest.getDescription().isEmpty()) {
+            task.setDescription(taskRequest.getDescription());
+        }
+
+        // Zawsze aktualizuj status ukonczenia
         task.setCompleted(taskRequest.isCompleted());
 
         taskRepository.save(task);
@@ -166,52 +207,63 @@ public class TaskController {
 
     @DeleteMapping("/{taskId}")
     public ResponseEntity<?> deleteTask(@PathVariable Long boardId, @PathVariable Long listId, 
-                                       @PathVariable Long cardId, @PathVariable Long taskId) {
+                                       @PathVariable Long cardId, @PathVariable Long taskId, @RequestParam Long userId) {
         Optional<Board> boardOptional = boardRepository.findById(boardId);
         if (!boardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Board not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
         }
 
         Board board = boardOptional.get();
 
         Optional<BoardList> listOptional = boardListRepository.findById(listId);
         if (!listOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie znaleziona!"));
         }
 
         BoardList list = listOptional.get();
 
-        // Check if list belongs to the specified board
+        // Sprawdz czy lista nalezy do okreslonej tablicy
         if (!list.getBoard().getId().equals(boardId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List does not belong to the specified board!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie nalezy do okreslonej tablicy!"));
         }
 
         Optional<Card> cardOptional = cardRepository.findById(cardId);
         if (!cardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Card not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Karta nie znaleziona!"));
         }
 
         Card card = cardOptional.get();
 
-        // Check if card belongs to the specified list
+        // Sprawdz czy karta nalezy do okreslonej listy
         if (!card.getList().getId().equals(listId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Card does not belong to the specified list!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Karta nie nalezy do okreslonej listy!"));
         }
 
         Optional<Task> taskOptional = taskRepository.findById(taskId);
         if (!taskOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Task not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Zadanie nie znalezione!"));
         }
 
         Task task = taskOptional.get();
 
-        // Check if task belongs to the specified card
+        // Sprawdz czy zadanie nalezy do okreslonej karty
         if (!task.getCard().getId().equals(cardId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Task does not belong to the specified card!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Zadanie nie nalezy do okreslonej karty!"));
+        }
+
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (!userOptional.isPresent()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik nie znaleziony!"));
+        }
+        User user = userOptional.get();
+
+        // Sprawdz czy uzytkownik jest wlascicielem zadania lub czlonkiem zadania
+        if (!task.getOwner().equals(user) && !task.getMembers().contains(user)) {
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel zadania lub czlonkowie moga je usunac!"));
         }
 
         taskRepository.delete(task);
 
-        return ResponseEntity.ok(new MessageResponse("Task deleted successfully!"));
+        return ResponseEntity.ok(new MessageResponse("Zadanie usuniete pomyslnie!"));
     }
 }

@@ -25,6 +25,8 @@ public class Label {
     @JoinColumn(name = "card_id")
     private Card card;
 
+    private boolean global = false;
+
     public Label() {
     }
 
@@ -64,6 +66,14 @@ public class Label {
 
     public void setCard(Card card) {
         this.card = card;
+    }
+
+    public boolean isGlobal() {
+        return global;
+    }
+
+    public void setGlobal(boolean global) {
+        this.global = global;
     }
 
     @Override

@@ -16,8 +16,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Kontroler do zarządzania tablicami
- * Uproszczona wersja dla projektu studenckiego
+ * Kontroler do zarzadzania tablicami
  */
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -30,24 +29,24 @@ public class BoardController {
     private UserRepository userRepository;
 
     /**
-     * Pobierz wszystkie tablice dla użytkownika
-     * @param userId ID użytkownika
-     * @return lista tablic, w których użytkownik jest właścicielem lub członkiem
+     * Pobierz wszystkie tablice dla uzytkownika
+     * @param userId ID uzytkownika
+     * @return lista tablic, w ktorych uzytkownik jest wlascicielem lub czlonkiem
      */
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> getUserBoards(@PathVariable Long userId) {
         Optional<User> userOptional = userRepository.findById(userId);
         if (!userOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: User not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik nie znaleziony!"));
         }
 
         User user = userOptional.get();
 
-        // Pobierz tablice, w których użytkownik jest właścicielem lub członkiem
+        // Pobierz tablice, w ktorych uzytkownik jest wlascicielem lub czlonkiem
         List<Board> ownedBoards = boardRepository.findByOwner(user);
         List<Board> memberBoards = boardRepository.findByMembersContaining(user);
 
-        // Połącz i usuń duplikaty
+        // Polacz i usun duplikaty
         List<Board> allBoards = Stream.concat(ownedBoards.stream(), memberBoards.stream())
                 .distinct()
                 .collect(Collectors.toList());
@@ -56,8 +55,8 @@ public class BoardController {
     }
 
     /**
-     * Utwórz nową tablicę
-     * @param userId ID użytkownika tworzącego tablicę
+     * Utworz nowa tablice
+     * @param userId ID uzytkownika tworzacego tablice
      * @param boardRequest dane tablicy
      * @return utworzona tablica
      */
@@ -65,7 +64,7 @@ public class BoardController {
     public ResponseEntity<?> createBoard(@PathVariable Long userId, @Valid @RequestBody Board boardRequest) {
         Optional<User> userOptional = userRepository.findById(userId);
         if (!userOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: User not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik nie znaleziony!"));
         }
 
         User user = userOptional.get();
@@ -77,39 +76,39 @@ public class BoardController {
     }
 
     /**
-     * Pobierz tablicę po ID
+     * Pobierz tablice po ID
      * @param id ID tablicy
-     * @param userId ID użytkownika żądającego tablicy
-     * @return tablica, jeśli użytkownik ma dostęp
+     * @param userId ID uzytkownika zadajacego tablicy
+     * @return tablica, jesli uzytkownik ma dostep
      */
     @GetMapping("/{id}/user/{userId}")
     public ResponseEntity<?> getBoardById(@PathVariable Long id, @PathVariable Long userId) {
         Optional<User> userOptional = userRepository.findById(userId);
         if (!userOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: User not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik nie znaleziony!"));
         }
 
         User user = userOptional.get();
 
         Optional<Board> boardOptional = boardRepository.findById(id);
         if (!boardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Board not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
         }
 
         Board board = boardOptional.get();
 
-        // Sprawdź, czy użytkownik jest właścicielem lub członkiem
+        // Sprawdz, czy uzytkownik jest wlascicielem lub czlonkiem
         if (!board.getOwner().equals(user) && !board.getMembers().contains(user)) {
-            return ResponseEntity.status(403).body(new MessageResponse("Error: You don't have access to this board!"));
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Nie masz dostepu do tej tablicy!"));
         }
 
         return ResponseEntity.ok(board);
     }
 
     /**
-     * Aktualizuj tablicę
+     * Aktualizuj tablice
      * @param id ID tablicy
-     * @param userId ID użytkownika aktualizującego tablicę
+     * @param userId ID uzytkownika aktualizujacego tablice
      * @param boardRequest zaktualizowane dane tablicy
      * @return zaktualizowana tablica
      */
@@ -117,21 +116,21 @@ public class BoardController {
     public ResponseEntity<?> updateBoard(@PathVariable Long id, @PathVariable Long userId, @Valid @RequestBody Board boardRequest) {
         Optional<User> userOptional = userRepository.findById(userId);
         if (!userOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: User not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik nie znaleziony!"));
         }
 
         User user = userOptional.get();
 
         Optional<Board> boardOptional = boardRepository.findById(id);
         if (!boardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Board not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
         }
 
         Board board = boardOptional.get();
 
-        // Sprawdź, czy użytkownik jest właścicielem
+        // Sprawdz, czy uzytkownik jest wlascicielem
         if (!board.getOwner().equals(user)) {
-            return ResponseEntity.status(403).body(new MessageResponse("Error: Only the board owner can update it!"));
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel tablicy moze ja aktualizowac!"));
         }
 
         board.setName(boardRequest.getName());
@@ -141,118 +140,118 @@ public class BoardController {
     }
 
     /**
-     * Usuń tablicę
+     * Usun tablice
      * @param id ID tablicy
-     * @param userId ID użytkownika usuwającego tablicę
-     * @return komunikat o powodzeniu, jeśli usunięcie się powiodło
+     * @param userId ID uzytkownika usuwajacego tablice
+     * @return komunikat o powodzeniu, jesli usuniecie sie powiodlo
      */
     @DeleteMapping("/{id}/user/{userId}")
     public ResponseEntity<?> deleteBoard(@PathVariable Long id, @PathVariable Long userId) {
         Optional<User> userOptional = userRepository.findById(userId);
         if (!userOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: User not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik nie znaleziony!"));
         }
 
         User user = userOptional.get();
 
         Optional<Board> boardOptional = boardRepository.findById(id);
         if (!boardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Board not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
         }
 
         Board board = boardOptional.get();
 
-        // Sprawdź, czy użytkownik jest właścicielem
+        // Sprawdz, czy uzytkownik jest wlascicielem
         if (!board.getOwner().equals(user)) {
-            return ResponseEntity.status(403).body(new MessageResponse("Error: Only the board owner can delete it!"));
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel tablicy moze ja usunac!"));
         }
 
         boardRepository.delete(board);
 
-        return ResponseEntity.ok(new MessageResponse("Board deleted successfully!"));
+        return ResponseEntity.ok(new MessageResponse("Tablica usunieta pomyslnie!"));
     }
 
     /**
-     * Dodaj członka do tablicy
+     * Dodaj czlonka do tablicy
      * @param id ID tablicy
-     * @param ownerId ID właściciela tablicy
-     * @param userId ID użytkownika do dodania jako członka
-     * @return komunikat o powodzeniu, jeśli dodanie się powiodło
+     * @param ownerId ID wlasciciela tablicy
+     * @param userId ID uzytkownika do dodania jako czlonka
+     * @return komunikat o powodzeniu, jesli dodanie sie powiodlo
      */
     @PostMapping("/{id}/owner/{ownerId}/members/{userId}")
     public ResponseEntity<?> addMemberToBoard(@PathVariable Long id, @PathVariable Long ownerId, @PathVariable Long userId) {
         Optional<User> ownerOptional = userRepository.findById(ownerId);
         if (!ownerOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Owner not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Wlasciciel nie znaleziony!"));
         }
 
         User owner = ownerOptional.get();
 
         Optional<Board> boardOptional = boardRepository.findById(id);
         if (!boardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Board not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
         }
 
         Board board = boardOptional.get();
 
-        // Sprawdź, czy użytkownik jest właścicielem
+        // Sprawdz, czy uzytkownik jest wlascicielem
         if (!board.getOwner().equals(owner)) {
-            return ResponseEntity.status(403).body(new MessageResponse("Error: Only the board owner can add members!"));
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel tablicy moze dodawac czlonkow!"));
         }
 
         Optional<User> memberUserOptional = userRepository.findById(userId);
         if (!memberUserOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Member user not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik czlonek nie znaleziony!"));
         }
 
         User memberUser = memberUserOptional.get();
 
-        // Dodaj członka do tablicy
+        // Dodaj czlonka do tablicy
         board.addMember(memberUser);
         boardRepository.save(board);
 
-        return ResponseEntity.ok(new MessageResponse("Member added to board successfully!"));
+        return ResponseEntity.ok(new MessageResponse("Czlonek dodany do tablicy pomyslnie!"));
     }
 
     /**
-     * Usuń członka z tablicy
+     * Usun czlonka z tablicy
      * @param id ID tablicy
-     * @param ownerId ID właściciela tablicy
-     * @param userId ID użytkownika do usunięcia jako członka
-     * @return komunikat o powodzeniu, jeśli usunięcie się powiodło
+     * @param ownerId ID wlasciciela tablicy
+     * @param userId ID uzytkownika do usuniecia jako czlonka
+     * @return komunikat o powodzeniu, jesli usuniecie sie powiodlo
      */
     @DeleteMapping("/{id}/owner/{ownerId}/members/{userId}")
     public ResponseEntity<?> removeMemberFromBoard(@PathVariable Long id, @PathVariable Long ownerId, @PathVariable Long userId) {
         Optional<User> ownerOptional = userRepository.findById(ownerId);
         if (!ownerOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Owner not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Wlasciciel nie znaleziony!"));
         }
 
         User owner = ownerOptional.get();
 
         Optional<Board> boardOptional = boardRepository.findById(id);
         if (!boardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Board not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
         }
 
         Board board = boardOptional.get();
 
-        // Sprawdź, czy użytkownik jest właścicielem
+        // Sprawdz, czy uzytkownik jest wlascicielem
         if (!board.getOwner().equals(owner)) {
-            return ResponseEntity.status(403).body(new MessageResponse("Error: Only the board owner can remove members!"));
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel tablicy moze usuwac czlonkow!"));
         }
 
         Optional<User> memberUserOptional = userRepository.findById(userId);
         if (!memberUserOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Member user not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik czlonek nie znaleziony!"));
         }
 
         User memberUser = memberUserOptional.get();
 
-        // Usuń członka z tablicy
+        // Usun czlonka z tablicy
         board.removeMember(memberUser);
         boardRepository.save(board);
 
-        return ResponseEntity.ok(new MessageResponse("Member removed from board successfully!"));
+        return ResponseEntity.ok(new MessageResponse("Czlonek usuniety z tablicy pomyslnie!"));
     }
 }

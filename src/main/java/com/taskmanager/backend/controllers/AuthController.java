@@ -6,6 +6,8 @@ import com.taskmanager.backend.payload.request.SignupRequest;
 import com.taskmanager.backend.payload.response.MessageResponse;
 import com.taskmanager.backend.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,7 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Controller for handling user authentication
+ * Kontroler do obslugi uwierzytelniania uzytkownikow
  */
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -25,9 +27,9 @@ public class AuthController {
     UserRepository userRepository;
 
     /**
-     * Authenticate a user
-     * @param loginRequest login credentials
-     * @return user information if authentication is successful
+     * Uwierzytelnianie uzytkownika
+     * @param loginRequest dane logowania
+     * @return informacje o uzytkowniku, jesli uwierzytelnianie jest udane
      */
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -36,36 +38,48 @@ public class AuthController {
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             if (user.getPassword().equals(loginRequest.getPassword())) {
+                // Utworz bezpieczne ciasteczko z identyfikatorem uzytkownika
+                ResponseCookie cookie = ResponseCookie.from("userId", user.getId().toString())
+                    .httpOnly(false)  // Zezwol na dostep JavaScript dla naszego frontendu
+                    .secure(false)    // Ustaw na true w produkcji z HTTPS
+                    .path("/")
+                    .maxAge(24 * 60 * 60) // 24 godziny
+                    .build();
+
+                // Utworz tresc odpowiedzi
                 Map<String, Object> response = new HashMap<>();
                 response.put("id", user.getId());
                 response.put("username", user.getUsername());
                 response.put("email", user.getEmail());
-                response.put("message", "Login successful");
+                response.put("message", "Logowanie udane");
 
-                return ResponseEntity.ok(response);
+                // Zwroc odpowiedz z ciasteczkiem
+                return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                    .body(response);
             }
         }
 
-        return ResponseEntity.badRequest().body(new MessageResponse("Error: Invalid username or password"));
+        return ResponseEntity.badRequest().body(new MessageResponse("Blad: Nieprawidlowa nazwa uzytkownika lub haslo"));
     }
 
     /**
-     * Register a new user
-     * @param signUpRequest user registration data
-     * @return success message if registration is successful
+     * Rejestracja nowego uzytkownika
+     * @param signUpRequest dane rejestracyjne uzytkownika
+     * @return komunikat o powodzeniu, jesli rejestracja jest udana
      */
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity
                     .badRequest()
-                    .body(new MessageResponse("Error: Username is already taken!"));
+                    .body(new MessageResponse("Blad: Nazwa uzytkownika jest juz zajeta!"));
         }
 
         if (userRepository.existsByEmail(signUpRequest.getEmail())) {
             return ResponseEntity
                     .badRequest()
-                    .body(new MessageResponse("Error: Email is already in use!"));
+                    .body(new MessageResponse("Blad: Email jest juz w uzyciu!"));
         }
 
         User user = new User(signUpRequest.getUsername(), 
@@ -74,6 +88,25 @@ public class AuthController {
 
         userRepository.save(user);
 
-        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+        return ResponseEntity.ok(new MessageResponse("Uzytkownik zarejestrowany pomyslnie!"));
+    }
+
+    /**
+     * Wylogowanie uzytkownika poprzez wyczyszczenie ciasteczka userId
+     * @return komunikat o powodzeniu
+     */
+    @PostMapping("/signout")
+    public ResponseEntity<?> logoutUser() {
+        // Wyczysc ciasteczko userId
+        ResponseCookie cookie = ResponseCookie.from("userId", "")
+            .httpOnly(false)
+            .secure(false)
+            .path("/")
+            .maxAge(0) // Wygasnie natychmiast
+            .build();
+
+        return ResponseEntity.ok()
+            .header(HttpHeaders.SET_COOKIE, cookie.toString())
+            .body(new MessageResponse("Uzytkownik wylogowany pomyslnie!"));
     }
 }
