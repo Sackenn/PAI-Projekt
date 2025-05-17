@@ -30,8 +30,8 @@
 ## Endpointy API
 
 ### Uwierzytelnianie
-- `POST /api/auth/signup`: Rejestracja nowego użytkownika (uproszczona, bez zabezpieczeń)
-- `POST /api/auth/signin`: Uwierzytelnianie użytkownika (uproszczone, bez zabezpieczeń)
+- `POST /api/auth/signup`: Rejestracja nowego użytkownika
+- `POST /api/auth/signin`: Uwierzytelnianie użytkownika
 
 ### Użytkownicy
 - `GET /api/user/profile/{userId}`: Pobierz profil użytkownika
