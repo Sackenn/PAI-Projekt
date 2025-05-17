@@ -1,32 +1,33 @@
+# Struktura Projektu
 
-## Struktura Projektu
+## Komponenty Backendu
 
-### Komponenty Backendu
-
-- **Modele**: Definiują strukturę danych
+- **Models**: Definiują strukturę danych
   - User: Reprezentuje użytkowników aplikacji
-  - Board: Reprezentuje tablicę projektu lub zadań
-  - BoardList: Reprezentuje listę w tablicy (np. "Do zrobienia", "W trakcie", "Zrobione")
+  - Board: Reprezentuje projekt lub tablicę zadań
+  - BoardList: Reprezentuje listę w tablicy
   - Card: Reprezentuje kartę zadania w liście
   - Task: Reprezentuje podzadanie w karcie
-  - Label: Reprezentuje kolorową etykietę, którą można dołączyć do karty
+  - Label: Reprezentuje kolorową etykietę, która może być dołączona do karty
 
-- **Kontrolery**: Obsługują żądania HTTP
+- **Controllers**: Obsługują żądania HTTP
   - AuthController: Obsługuje rejestrację i uwierzytelnianie użytkowników
   - UserController: Zarządza profilami użytkowników
   - BoardController: Zarządza tablicami
   - BoardListController: Zarządza listami w tablicach
   - CardController: Zarządza kartami w listach
   - TaskController: Zarządza zadaniami w kartach
+  - LabelController: Zarządza globalnymi etykietami
 
-- **Repozytoria**: Interfejs z bazą danych
+- **Repositories**: Interfejs z bazą danych
   - UserRepository: Zarządza danymi użytkowników
   - BoardRepository: Zarządza danymi tablic
   - BoardListRepository: Zarządza danymi list
   - CardRepository: Zarządza danymi kart
   - TaskRepository: Zarządza danymi zadań
+  - LabelRepository: Zarządza danymi etykiet
 
-  
+
 ## Endpointy API
 
 ### Uwierzytelnianie
@@ -68,7 +69,11 @@
 
 ### Etykiety
 - `POST /api/boards/{boardId}/lists/{listId}/cards/{cardId}/labels`: Dodaj etykietę do karty
+- `POST /api/boards/{boardId}/lists/{listId}/cards/{cardId}/global-labels/{labelId}`: Dodaj globalną etykietę do karty
 - `DELETE /api/boards/{boardId}/lists/{listId}/cards/{cardId}/labels/{labelId}`: Usuń etykietę z karty
+- `GET /api/labels/global`: Pobierz wszystkie globalne etykiety
+- `POST /api/labels/global`: Utwórz nową globalną etykietę
+- `DELETE /api/labels/global/{id}`: Usuń globalną etykietę
 
 ### Obsługa Błędów
 Backend zwraca odpowiednie kody statusu HTTP i komunikaty o błędach:
