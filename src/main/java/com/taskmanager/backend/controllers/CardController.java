@@ -34,24 +34,36 @@ public class CardController {
     private LabelRepository labelRepository;
 
     @GetMapping
-    public ResponseEntity<?> getListCards(@PathVariable Long boardId, @PathVariable Long listId) {
+    public ResponseEntity<?> getListCards(@PathVariable Long boardId, @PathVariable Long listId, @RequestParam Long userId) {
         Optional<Board> boardOptional = boardRepository.findById(boardId);
         if (!boardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Board not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
         }
 
         Board board = boardOptional.get();
 
         Optional<BoardList> listOptional = boardListRepository.findById(listId);
         if (!listOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie znaleziona!"));
         }
 
         BoardList list = listOptional.get();
 
-        // Sprawdź, czy lista należy do określonej tablicy
+        // Sprawdz czy lista nalezy do okreslonej tablicy
         if (!list.getBoard().getId().equals(boardId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List does not belong to the specified board!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie nalezy do okreslonej tablicy!"));
+        }
+
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (!userOptional.isPresent()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik nie znaleziony!"));
+        }
+        User user = userOptional.get();
+
+        // Sprawdz czy uzytkownik jest wlascicielem tablicy, czlonkiem tablicy, wlascicielem listy lub czlonkiem listy
+        if (!board.getOwner().equals(user) && !board.getMembers().contains(user) && 
+            !list.getOwner().equals(user) && !list.getMembers().contains(user)) {
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Nie masz uprawnien do przegladania kart tej listy!"));
         }
 
         List<Card> cards = cardRepository.findByListOrderByPosition(list);
@@ -61,34 +73,45 @@ public class CardController {
 
     @PostMapping
     public ResponseEntity<?> createCard(@PathVariable Long boardId, @PathVariable Long listId, 
-                                       @Valid @RequestBody Card cardRequest) {
+                                       @Valid @RequestBody Card cardRequest, @RequestParam Long userId) {
         Optional<Board> boardOptional = boardRepository.findById(boardId);
         if (!boardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Board not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
         }
 
         Board board = boardOptional.get();
 
         Optional<BoardList> listOptional = boardListRepository.findById(listId);
         if (!listOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie znaleziona!"));
         }
 
         BoardList list = listOptional.get();
 
-        // Sprawdź, czy lista należy do określonej tablicy
+        // Sprawdz czy lista nalezy do okreslonej tablicy
         if (!list.getBoard().getId().equals(boardId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List does not belong to the specified board!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie nalezy do okreslonej tablicy!"));
         }
 
-        // Pobierz najwyższą wartość pozycji
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (!userOptional.isPresent()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik nie znaleziony!"));
+        }
+        User user = userOptional.get();
+
+        // Sprawdz czy uzytkownik jest wlascicielem listy lub czlonkiem listy
+        if (!list.getOwner().equals(user) && !list.getMembers().contains(user)) {
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel listy lub czlonkowie moga tworzyc karty!"));
+        }
+
+        // Pobierz najwyzsza wartosc pozycji
         List<Card> existingCards = cardRepository.findByListOrderByPosition(list);
         int position = 0;
         if (!existingCards.isEmpty()) {
             position = existingCards.get(existingCards.size() - 1).getPosition() + 1;
         }
 
-        Card card = new Card(cardRequest.getTitle(), cardRequest.getDescription(), position, list);
+        Card card = new Card(cardRequest.getTitle(), cardRequest.getDescription(), position, list, user);
         cardRepository.save(card);
 
         return ResponseEntity.ok(card);
@@ -96,36 +119,50 @@ public class CardController {
 
     @GetMapping("/{cardId}")
     public ResponseEntity<?> getCardById(@PathVariable Long boardId, @PathVariable Long listId, 
-                                        @PathVariable Long cardId) {
+                                        @PathVariable Long cardId, @RequestParam Long userId) {
         Optional<Board> boardOptional = boardRepository.findById(boardId);
         if (!boardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Board not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
         }
 
         Board board = boardOptional.get();
 
         Optional<BoardList> listOptional = boardListRepository.findById(listId);
         if (!listOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie znaleziona!"));
         }
 
         BoardList list = listOptional.get();
 
-        // Sprawdź, czy lista należy do określonej tablicy
+        // Sprawdz czy lista nalezy do okreslonej tablicy
         if (!list.getBoard().getId().equals(boardId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List does not belong to the specified board!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie nalezy do okreslonej tablicy!"));
         }
 
         Optional<Card> cardOptional = cardRepository.findById(cardId);
         if (!cardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Card not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Karta nie znaleziona!"));
         }
 
         Card card = cardOptional.get();
 
-        // Sprawdź, czy karta należy do określonej listy
+        // Sprawdz czy karta nalezy do okreslonej listy
         if (!card.getList().getId().equals(listId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Card does not belong to the specified list!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Karta nie nalezy do okreslonej listy!"));
+        }
+
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (!userOptional.isPresent()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik nie znaleziony!"));
+        }
+        User user = userOptional.get();
+
+        // Sprawdz czy uzytkownik jest wlascicielem tablicy, czlonkiem tablicy, wlascicielem listy, czlonkiem listy,
+        // wlascicielem karty lub czlonkiem karty
+        if (!board.getOwner().equals(user) && !board.getMembers().contains(user) && 
+            !list.getOwner().equals(user) && !list.getMembers().contains(user) &&
+            !card.getOwner().equals(user) && !card.getMembers().contains(user)) {
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Nie masz uprawnien do przegladania tej karty!"));
         }
 
         return ResponseEntity.ok(card);
@@ -133,36 +170,47 @@ public class CardController {
 
     @PutMapping("/{cardId}")
     public ResponseEntity<?> updateCard(@PathVariable Long boardId, @PathVariable Long listId, 
-                                       @PathVariable Long cardId, @Valid @RequestBody Card cardRequest) {
+                                       @PathVariable Long cardId, @Valid @RequestBody Card cardRequest, @RequestParam Long userId) {
         Optional<Board> boardOptional = boardRepository.findById(boardId);
         if (!boardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Board not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
         }
 
         Board board = boardOptional.get();
 
         Optional<BoardList> listOptional = boardListRepository.findById(listId);
         if (!listOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie znaleziona!"));
         }
 
         BoardList list = listOptional.get();
 
-        // Sprawdź, czy lista należy do określonej tablicy
+        // Sprawdz czy lista nalezy do okreslonej tablicy
         if (!list.getBoard().getId().equals(boardId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List does not belong to the specified board!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie nalezy do okreslonej tablicy!"));
         }
 
         Optional<Card> cardOptional = cardRepository.findById(cardId);
         if (!cardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Card not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Karta nie znaleziona!"));
         }
 
         Card card = cardOptional.get();
 
-        // Sprawdź, czy karta należy do określonej listy
+        // Sprawdz czy karta nalezy do okreslonej listy
         if (!card.getList().getId().equals(listId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Card does not belong to the specified list!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Karta nie nalezy do okreslonej listy!"));
+        }
+
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (!userOptional.isPresent()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik nie znaleziony!"));
+        }
+        User user = userOptional.get();
+
+        // Sprawdz czy uzytkownik jest wlascicielem karty lub czlonkiem karty
+        if (!card.getOwner().equals(user) && !card.getMembers().contains(user)) {
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel karty lub czlonkowie moga ja aktualizowac!"));
         }
 
         card.setTitle(cardRequest.getTitle());
@@ -178,41 +226,52 @@ public class CardController {
 
     @DeleteMapping("/{cardId}")
     public ResponseEntity<?> deleteCard(@PathVariable Long boardId, @PathVariable Long listId, 
-                                       @PathVariable Long cardId) {
+                                       @PathVariable Long cardId, @RequestParam Long userId) {
         Optional<Board> boardOptional = boardRepository.findById(boardId);
         if (!boardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Board not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
         }
 
         Board board = boardOptional.get();
 
         Optional<BoardList> listOptional = boardListRepository.findById(listId);
         if (!listOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie znaleziona!"));
         }
 
         BoardList list = listOptional.get();
 
-        // Check if list belongs to the specified board
+        // Sprawdz czy lista nalezy do okreslonej tablicy
         if (!list.getBoard().getId().equals(boardId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List does not belong to the specified board!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie nalezy do okreslonej tablicy!"));
         }
 
         Optional<Card> cardOptional = cardRepository.findById(cardId);
         if (!cardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Card not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Karta nie znaleziona!"));
         }
 
         Card card = cardOptional.get();
 
-        // Check if card belongs to the specified list
+        // Sprawdz czy karta nalezy do okreslonej listy
         if (!card.getList().getId().equals(listId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Card does not belong to the specified list!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Karta nie nalezy do okreslonej listy!"));
+        }
+
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (!userOptional.isPresent()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik nie znaleziony!"));
+        }
+        User user = userOptional.get();
+
+        // Sprawdz czy uzytkownik jest wlascicielem karty
+        if (!card.getOwner().equals(user)) {
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel karty moze ja usunac!"));
         }
 
         cardRepository.delete(card);
 
-        return ResponseEntity.ok(new MessageResponse("Card deleted successfully!"));
+        return ResponseEntity.ok(new MessageResponse("Karta usunieta pomyslnie!"));
     }
 
     @PostMapping("/{cardId}/members/{userId}")
@@ -220,47 +279,47 @@ public class CardController {
                                            @PathVariable Long cardId, @PathVariable Long userId) {
         Optional<Board> boardOptional = boardRepository.findById(boardId);
         if (!boardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Board not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
         }
 
         Board board = boardOptional.get();
 
         Optional<BoardList> listOptional = boardListRepository.findById(listId);
         if (!listOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie znaleziona!"));
         }
 
         BoardList list = listOptional.get();
 
-        // Check if list belongs to the specified board
+        // Sprawdz czy lista nalezy do okreslonej tablicy
         if (!list.getBoard().getId().equals(boardId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List does not belong to the specified board!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie nalezy do okreslonej tablicy!"));
         }
 
         Optional<Card> cardOptional = cardRepository.findById(cardId);
         if (!cardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Card not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Karta nie znaleziona!"));
         }
 
         Card card = cardOptional.get();
 
-        // Check if card belongs to the specified list
+        // Sprawdz czy karta nalezy do okreslonej listy
         if (!card.getList().getId().equals(listId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Card does not belong to the specified list!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Karta nie nalezy do okreslonej listy!"));
         }
 
         Optional<User> memberUserOptional = userRepository.findById(userId);
         if (!memberUserOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Member user not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik czlonek nie znaleziony!"));
         }
 
         User memberUser = memberUserOptional.get();
 
-        // Add member to card
+        // Dodaj czlonka do karty
         card.addMember(memberUser);
         cardRepository.save(card);
 
-        return ResponseEntity.ok(new MessageResponse("Member added to card successfully!"));
+        return ResponseEntity.ok(new MessageResponse("Czlonek dodany do karty pomyslnie!"));
     }
 
     @DeleteMapping("/{cardId}/members/{userId}")
@@ -268,81 +327,92 @@ public class CardController {
                                                 @PathVariable Long cardId, @PathVariable Long userId) {
         Optional<Board> boardOptional = boardRepository.findById(boardId);
         if (!boardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Board not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
         }
 
         Board board = boardOptional.get();
 
         Optional<BoardList> listOptional = boardListRepository.findById(listId);
         if (!listOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie znaleziona!"));
         }
 
         BoardList list = listOptional.get();
 
-        // Check if list belongs to the specified board
+        // Sprawdz czy lista nalezy do okreslonej tablicy
         if (!list.getBoard().getId().equals(boardId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List does not belong to the specified board!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie nalezy do okreslonej tablicy!"));
         }
 
         Optional<Card> cardOptional = cardRepository.findById(cardId);
         if (!cardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Card not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Karta nie znaleziona!"));
         }
 
         Card card = cardOptional.get();
 
-        // Check if card belongs to the specified list
+        // Sprawdz czy karta nalezy do okreslonej listy
         if (!card.getList().getId().equals(listId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Card does not belong to the specified list!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Karta nie nalezy do okreslonej listy!"));
         }
 
         Optional<User> memberUserOptional = userRepository.findById(userId);
         if (!memberUserOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Member user not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik czlonek nie znaleziony!"));
         }
 
         User memberUser = memberUserOptional.get();
 
-        // Remove member from card
+        // Usun czlonka z karty
         card.removeMember(memberUser);
         cardRepository.save(card);
 
-        return ResponseEntity.ok(new MessageResponse("Member removed from card successfully!"));
+        return ResponseEntity.ok(new MessageResponse("Czlonek usuniety z karty pomyslnie!"));
     }
 
     @PutMapping("/{cardId}/dates")
     public ResponseEntity<?> updateCardDates(@PathVariable Long boardId, @PathVariable Long listId, 
-                                           @PathVariable Long cardId, @RequestBody Card cardRequest) {
+                                           @PathVariable Long cardId, @RequestBody Card cardRequest, @RequestParam Long userId) {
         Optional<Board> boardOptional = boardRepository.findById(boardId);
         if (!boardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Board not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
         }
 
         Board board = boardOptional.get();
 
         Optional<BoardList> listOptional = boardListRepository.findById(listId);
         if (!listOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie znaleziona!"));
         }
 
         BoardList list = listOptional.get();
 
-        // Check if list belongs to the specified board
+        // Sprawdz czy lista nalezy do okreslonej tablicy
         if (!list.getBoard().getId().equals(boardId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List does not belong to the specified board!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie nalezy do okreslonej tablicy!"));
         }
 
         Optional<Card> cardOptional = cardRepository.findById(cardId);
         if (!cardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Card not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Karta nie znaleziona!"));
         }
 
         Card card = cardOptional.get();
 
-        // Check if card belongs to the specified list
+        // Sprawdz czy karta nalezy do okreslonej listy
         if (!card.getList().getId().equals(listId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Card does not belong to the specified list!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Karta nie nalezy do okreslonej listy!"));
+        }
+
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (!userOptional.isPresent()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik nie znaleziony!"));
+        }
+        User user = userOptional.get();
+
+        // Sprawdz czy uzytkownik jest wlascicielem karty lub czlonkiem karty
+        if (!card.getOwner().equals(user) && !card.getMembers().contains(user)) {
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel karty lub czlonkowie moga aktualizowac daty karty!"));
         }
 
         card.setStartDate(cardRequest.getStartDate());
@@ -355,93 +425,203 @@ public class CardController {
 
     @PostMapping("/{cardId}/labels")
     public ResponseEntity<?> addLabelToCard(@PathVariable Long boardId, @PathVariable Long listId, 
-                                          @PathVariable Long cardId, @Valid @RequestBody LabelRequest labelRequest) {
+                                          @PathVariable Long cardId, @Valid @RequestBody LabelRequest labelRequest, @RequestParam Long userId) {
         Optional<Board> boardOptional = boardRepository.findById(boardId);
         if (!boardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Board not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
         }
 
         Board board = boardOptional.get();
 
         Optional<BoardList> listOptional = boardListRepository.findById(listId);
         if (!listOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie znaleziona!"));
         }
 
         BoardList list = listOptional.get();
 
-        // Check if list belongs to the specified board
+        // Sprawdz czy lista nalezy do okreslonej tablicy
         if (!list.getBoard().getId().equals(boardId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List does not belong to the specified board!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie nalezy do okreslonej tablicy!"));
         }
 
         Optional<Card> cardOptional = cardRepository.findById(cardId);
         if (!cardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Card not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Karta nie znaleziona!"));
         }
 
         Card card = cardOptional.get();
 
-        // Check if card belongs to the specified list
+        // Sprawdz czy karta nalezy do okreslonej listy
         if (!card.getList().getId().equals(listId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Card does not belong to the specified list!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Karta nie nalezy do okreslonej listy!"));
         }
 
-        card.addLabel(labelRequest.getName(), labelRequest.getColor());
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (!userOptional.isPresent()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik nie znaleziony!"));
+        }
+        User user = userOptional.get();
+
+        // Sprawdz czy uzytkownik jest wlascicielem karty lub czlonkiem karty
+        if (!card.getOwner().equals(user) && !card.getMembers().contains(user)) {
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel karty lub czlonkowie moga dodawac etykiety do karty!"));
+        }
+
+        // Sprawdz czy istnieje globalna etykieta o tej samej nazwie i kolorze
+        List<Label> globalLabels = labelRepository.findByGlobalTrue();
+        Label existingLabel = null;
+
+        for (Label label : globalLabels) {
+            if (label.getName().equals(labelRequest.getName()) && label.getColor().equals(labelRequest.getColor())) {
+                existingLabel = label;
+                break;
+            }
+        }
+
+        if (existingLabel != null) {
+            // Utworz kopie globalnej etykiety dla tej karty
+            Label newLabel = new Label(existingLabel.getName(), existingLabel.getColor());
+            newLabel.setCard(card);
+            labelRepository.save(newLabel);
+            card.getLabels().add(newLabel);
+        } else {
+            // Utworz nowa etykiete
+            card.addLabel(labelRequest.getName(), labelRequest.getColor());
+        }
+
         cardRepository.save(card);
 
-        return ResponseEntity.ok(new MessageResponse("Label added to card successfully!"));
+        return ResponseEntity.ok(new MessageResponse("Etykieta dodana do karty pomyslnie!"));
     }
 
-    @DeleteMapping("/{cardId}/labels/{labelId}")
-    public ResponseEntity<?> removeLabelFromCard(@PathVariable Long boardId, @PathVariable Long listId, 
-                                               @PathVariable Long cardId, @PathVariable Long labelId) {
+    @PostMapping("/{cardId}/global-labels/{labelId}")
+    public ResponseEntity<?> addGlobalLabelToCard(@PathVariable Long boardId, @PathVariable Long listId, 
+                                                @PathVariable Long cardId, @PathVariable Long labelId, @RequestParam Long userId) {
         Optional<Board> boardOptional = boardRepository.findById(boardId);
         if (!boardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Board not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
         }
 
         Board board = boardOptional.get();
 
         Optional<BoardList> listOptional = boardListRepository.findById(listId);
         if (!listOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie znaleziona!"));
         }
 
         BoardList list = listOptional.get();
 
-        // Check if list belongs to the specified board
+        // Sprawdz czy lista nalezy do okreslonej tablicy
         if (!list.getBoard().getId().equals(boardId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: List does not belong to the specified board!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie nalezy do okreslonej tablicy!"));
         }
 
         Optional<Card> cardOptional = cardRepository.findById(cardId);
         if (!cardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Card not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Karta nie znaleziona!"));
         }
 
         Card card = cardOptional.get();
 
-        // Check if card belongs to the specified list
+        // Sprawdz czy karta nalezy do okreslonej listy
         if (!card.getList().getId().equals(listId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Card does not belong to the specified list!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Karta nie nalezy do okreslonej listy!"));
+        }
+
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (!userOptional.isPresent()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik nie znaleziony!"));
+        }
+        User user = userOptional.get();
+
+        // Sprawdz czy uzytkownik jest wlascicielem karty lub czlonkiem karty
+        if (!card.getOwner().equals(user) && !card.getMembers().contains(user)) {
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel karty lub czlonkowie moga dodawac etykiety do karty!"));
         }
 
         Optional<Label> labelOptional = labelRepository.findById(labelId);
         if (!labelOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Label not found!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Etykieta nie znaleziona!"));
+        }
+
+        Label globalLabel = labelOptional.get();
+
+        // Sprawdz czy etykieta jest globalna
+        if (!globalLabel.isGlobal()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Etykieta nie jest globalna!"));
+        }
+
+        // Utworz kopie globalnej etykiety dla tej karty
+        Label newLabel = new Label(globalLabel.getName(), globalLabel.getColor());
+        newLabel.setCard(card);
+        labelRepository.save(newLabel);
+        card.getLabels().add(newLabel);
+        cardRepository.save(card);
+
+        return ResponseEntity.ok(new MessageResponse("Globalna etykieta dodana do karty pomyslnie!"));
+    }
+
+    @DeleteMapping("/{cardId}/labels/{labelId}")
+    public ResponseEntity<?> removeLabelFromCard(@PathVariable Long boardId, @PathVariable Long listId, 
+                                               @PathVariable Long cardId, @PathVariable Long labelId, @RequestParam Long userId) {
+        Optional<Board> boardOptional = boardRepository.findById(boardId);
+        if (!boardOptional.isPresent()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
+        }
+
+        Board board = boardOptional.get();
+
+        Optional<BoardList> listOptional = boardListRepository.findById(listId);
+        if (!listOptional.isPresent()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie znaleziona!"));
+        }
+
+        BoardList list = listOptional.get();
+
+        // Sprawdz czy lista nalezy do okreslonej tablicy
+        if (!list.getBoard().getId().equals(boardId)) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie nalezy do okreslonej tablicy!"));
+        }
+
+        Optional<Card> cardOptional = cardRepository.findById(cardId);
+        if (!cardOptional.isPresent()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Karta nie znaleziona!"));
+        }
+
+        Card card = cardOptional.get();
+
+        // Sprawdz czy karta nalezy do okreslonej listy
+        if (!card.getList().getId().equals(listId)) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Karta nie nalezy do okreslonej listy!"));
+        }
+
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (!userOptional.isPresent()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik nie znaleziony!"));
+        }
+        User user = userOptional.get();
+
+        // Sprawdz czy uzytkownik jest wlascicielem karty lub czlonkiem karty
+        if (!card.getOwner().equals(user) && !card.getMembers().contains(user)) {
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel karty lub czlonkowie moga usuwac etykiety z karty!"));
+        }
+
+        Optional<Label> labelOptional = labelRepository.findById(labelId);
+        if (!labelOptional.isPresent()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Etykieta nie znaleziona!"));
         }
 
         Label label = labelOptional.get();
 
-        // Check if label belongs to the specified card
+        // Sprawdz czy etykieta nalezy do okreslonej karty
         if (!label.getCard().getId().equals(cardId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Label does not belong to the specified card!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Etykieta nie nalezy do okreslonej karty!"));
         }
 
         card.removeLabel(label);
         cardRepository.save(card);
 
-        return ResponseEntity.ok(new MessageResponse("Label removed from card successfully!"));
+        return ResponseEntity.ok(new MessageResponse("Etykieta usunieta z karty pomyslnie!"));
     }
 }

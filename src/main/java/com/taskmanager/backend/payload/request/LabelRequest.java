@@ -10,7 +10,7 @@ public class LabelRequest {
     private String name;
 
     @NotBlank
-    @Pattern(regexp = "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", message = "Color must be a valid hex color (e.g., #FF5733)")
+    @Pattern(regexp = "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", message = "Kolor musi być poprawnym kolorem hex (np: #FF5733)")
     private String color;
 
     public LabelRequest() {
