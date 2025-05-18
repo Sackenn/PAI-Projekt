@@ -38,17 +38,37 @@ Ten dokument zawiera kompleksową listę wszystkich endpointów API dostępnych 
   - Sukces: Informacje o użytkowniku (bez hasła)
   - Błąd: Komunikat o błędzie
 
-### PUT /api/user/profile/{userId}
-- **Opis**: Aktualizuje informacje o profilu użytkownika
+### PUT /api/user/profile/{userId}/username
+- **Opis**: Aktualizuje nazwę użytkownika
 - **Parametry ścieżki**:
   - `userId`: ID użytkownika do aktualizacji
 - **Treść żądania**: 
-  - `username`: Zaktualizowana nazwa użytkownika
-  - `email`: Zaktualizowany email
-  - `password`: Zaktualizowane hasło (opcjonalne)
+  - `username`: Nowa nazwa użytkownika
 - **Odpowiedź**: 
   - Sukces: Komunikat o powodzeniu
   - Błąd: Komunikat o błędzie
+
+### PUT /api/user/profile/{userId}/email
+- **Opis**: Aktualizuje email użytkownika
+- **Parametry ścieżki**:
+  - `userId`: ID użytkownika do aktualizacji
+- **Treść żądania**: 
+  - `email`: Nowy email użytkownika
+- **Odpowiedź**: 
+  - Sukces: Komunikat o powodzeniu
+  - Błąd: Komunikat o błędzie
+
+### PUT /api/user/profile/{userId}/password
+- **Opis**: Aktualizuje hasło użytkownika
+- **Parametry ścieżki**:
+  - `userId`: ID użytkownika do aktualizacji
+- **Treść żądania**: 
+  - `currentPassword`: Aktualne hasło użytkownika
+  - `password`: Nowe hasło użytkownika
+- **Odpowiedź**: 
+  - Sukces: Komunikat o powodzeniu
+  - Błąd: Komunikat o błędzie (np. niepoprawne aktualne hasło)
+
 
 ## Endpointy Tablicy
 
