@@ -36,7 +36,9 @@
 
 ### Użytkownicy
 - `GET /api/user/profile/{userId}`: Pobierz profil użytkownika
-- `PUT /api/user/profile/{userId}`: Aktualizuj profil użytkownika
+- `PUT /api/user/profile/{userId}/username`: Aktualizuj nazwę użytkownika
+- `PUT /api/user/profile/{userId}/email`: Aktualizuj email użytkownika
+- `PUT /api/user/profile/{userId}/password`: Aktualizuj hasło użytkownika
 
 ### Tablice
 - `GET /api/boards/user/{userId}`: Pobierz wszystkie tablice dla użytkownika
