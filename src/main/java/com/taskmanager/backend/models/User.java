@@ -34,7 +34,7 @@ public class User {
     private String password;
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonIgnore
     private Set<Board> boards = new HashSet<>();
 
     @ManyToMany(mappedBy = "members")

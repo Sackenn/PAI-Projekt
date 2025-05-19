@@ -11,7 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Kontroler do zarzadzania profilami uzytkownikow
@@ -125,4 +127,24 @@ public class UserController {
         return ResponseEntity.ok(new MessageResponse("Haslo uzytkownika zaktualizowane pomyslnie!"));
     }
 
+    /**
+     * Pobierz liste wszystkich uzytkownikow
+     * @return lista uzytkownikow z podstawowymi informacjami (id, username)
+     */
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllUsers() {
+        List<User> users = userRepository.findAll();
+
+        // Mapuj uzytkownikow do prostszej struktury, bez hasel i innych wrażliwych danych
+        List<Object> simplifiedUsers = users.stream()
+            .map(user -> {
+                return new Object() {
+                    public final Long id = user.getId();
+                    public final String username = user.getUsername();
+                };
+            })
+            .collect(Collectors.toList());
+
+        return ResponseEntity.ok(simplifiedUsers);
+    }
 }

@@ -79,9 +79,9 @@ public class BoardListController {
         }
         User user = userOptional.get();
 
-        // Sprawdz czy uzytkownik jest wlascicielem tablicy
-        if (!board.getOwner().equals(user)) {
-            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel tablicy moze tworzyc listy!"));
+        // Sprawdz czy uzytkownik jest wlascicielem tablicy lub czlonkiem tablicy
+        if (!board.getOwner().equals(user) && !board.getMembers().contains(user)) {
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel tablicy lub czlonkowie moga tworzyc listy!"));
         }
 
         // Pobierz najwyzsza wartosc pozycji
@@ -125,9 +125,9 @@ public class BoardListController {
         }
         User user = userOptional.get();
 
-        // Sprawdz czy uzytkownik jest wlascicielem listy
-        if (!boardList.getOwner().equals(user)) {
-            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel listy moze ja aktualizowac!"));
+        // Sprawdz czy uzytkownik jest wlascicielem listy, czlonkiem listy lub czlonkiem tablicy
+        if (!boardList.getOwner().equals(user) && !boardList.getMembers().contains(user) && !board.getMembers().contains(user)) {
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel listy, czlonkowie listy lub czlonkowie tablicy moga ja aktualizowac!"));
         }
 
         boardList.setName(boardListRequest.getName());
@@ -167,9 +167,9 @@ public class BoardListController {
         }
         User user = userOptional.get();
 
-        // Sprawdz czy uzytkownik jest wlascicielem listy
-        if (!boardList.getOwner().equals(user)) {
-            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel listy moze ja usunac!"));
+        // Sprawdz czy uzytkownik jest wlascicielem listy lub czlonkiem tablicy
+        if (!boardList.getOwner().equals(user) && !board.getMembers().contains(user)) {
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel listy lub czlonkowie tablicy moga ja usunac!"));
         }
 
         boardListRepository.delete(boardList);
@@ -177,115 +177,4 @@ public class BoardListController {
         return ResponseEntity.ok(new MessageResponse("Lista usunieta pomyslnie!"));
     }
 
-    /**
-     * Dodaj czlonka do listy
-     * @param boardId ID tablicy
-     * @param listId ID listy
-     * @param ownerId ID wlasciciela listy
-     * @param userId ID uzytkownika do dodania jako czlonek
-     * @return komunikat o powodzeniu, jesli uzytkownik zostal dodany pomyslnie
-     */
-    @PostMapping("/{listId}/owner/{ownerId}/members/{userId}")
-    public ResponseEntity<?> addMemberToList(@PathVariable Long boardId, @PathVariable Long listId, 
-                                           @PathVariable Long ownerId, @PathVariable Long userId) {
-        Optional<Board> boardOptional = boardRepository.findById(boardId);
-        if (!boardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
-        }
-
-        Board board = boardOptional.get();
-
-        Optional<BoardList> listOptional = boardListRepository.findById(listId);
-        if (!listOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie znaleziona!"));
-        }
-
-        BoardList list = listOptional.get();
-
-        // Sprawdz czy lista nalezy do okreslonej tablicy
-        if (!list.getBoard().getId().equals(boardId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie nalezy do okreslonej tablicy!"));
-        }
-
-        Optional<User> ownerOptional = userRepository.findById(ownerId);
-        if (!ownerOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Wlasciciel nie znaleziony!"));
-        }
-
-        User owner = ownerOptional.get();
-
-        // Sprawdz czy uzytkownik jest wlascicielem listy
-        if (!list.getOwner().equals(owner)) {
-            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel listy moze dodawac czlonkow!"));
-        }
-
-        Optional<User> memberUserOptional = userRepository.findById(userId);
-        if (!memberUserOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik czlonek nie znaleziony!"));
-        }
-
-        User memberUser = memberUserOptional.get();
-
-        // Dodaj czlonka do listy
-        list.addMember(memberUser);
-        boardListRepository.save(list);
-
-        return ResponseEntity.ok(new MessageResponse("Czlonek dodany do listy pomyslnie!"));
-    }
-
-    /**
-     * Usun czlonka z listy
-     * @param boardId ID tablicy
-     * @param listId ID listy
-     * @param ownerId ID wlasciciela listy
-     * @param userId ID uzytkownika do usuniecia jako czlonek
-     * @return komunikat o powodzeniu, jesli uzytkownik zostal usuniety pomyslnie
-     */
-    @DeleteMapping("/{listId}/owner/{ownerId}/members/{userId}")
-    public ResponseEntity<?> removeMemberFromList(@PathVariable Long boardId, @PathVariable Long listId, 
-                                                @PathVariable Long ownerId, @PathVariable Long userId) {
-        Optional<Board> boardOptional = boardRepository.findById(boardId);
-        if (!boardOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
-        }
-
-        Board board = boardOptional.get();
-
-        Optional<BoardList> listOptional = boardListRepository.findById(listId);
-        if (!listOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie znaleziona!"));
-        }
-
-        BoardList list = listOptional.get();
-
-        // Sprawdz czy lista nalezy do okreslonej tablicy
-        if (!list.getBoard().getId().equals(boardId)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Lista nie nalezy do okreslonej tablicy!"));
-        }
-
-        Optional<User> ownerOptional = userRepository.findById(ownerId);
-        if (!ownerOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Wlasciciel nie znaleziony!"));
-        }
-
-        User owner = ownerOptional.get();
-
-        // Sprawdz czy uzytkownik jest wlascicielem listy
-        if (!list.getOwner().equals(owner)) {
-            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel listy moze usuwac czlonkow!"));
-        }
-
-        Optional<User> memberUserOptional = userRepository.findById(userId);
-        if (!memberUserOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik czlonek nie znaleziony!"));
-        }
-
-        User memberUser = memberUserOptional.get();
-
-        // Usun czlonka z listy
-        list.removeMember(memberUser);
-        boardListRepository.save(list);
-
-        return ResponseEntity.ok(new MessageResponse("Czlonek usuniety z listy pomyslnie!"));
-    }
 }
