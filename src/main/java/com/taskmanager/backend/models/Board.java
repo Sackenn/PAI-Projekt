@@ -23,7 +23,6 @@ public class Board {
 
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
-    @JsonBackReference
     private User owner;
 
     @ManyToMany

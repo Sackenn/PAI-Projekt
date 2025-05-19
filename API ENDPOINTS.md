@@ -69,6 +69,12 @@ Ten dokument zawiera kompleksową listę wszystkich endpointów API dostępnych 
   - Sukces: Komunikat o powodzeniu
   - Błąd: Komunikat o błędzie (np. niepoprawne aktualne hasło)
 
+### GET /api/user/all
+- **Opis**: Pobiera listę wszystkich użytkowników
+- **Odpowiedź**: 
+  - Sukces: Lista użytkowników z podstawowymi informacjami (id, nazwa użytkownika)
+  - Błąd: Komunikat o błędzie
+
 
 ## Endpointy Tablicy
 
@@ -139,6 +145,16 @@ Ten dokument zawiera kompleksową listę wszystkich endpointów API dostępnych 
   - Sukces: Komunikat o powodzeniu
   - Błąd: Komunikat o błędzie
 
+### PUT /api/boards/{id}/owner/{currentOwnerId}/change-owner/{newOwnerId}
+- **Opis**: Zmienia właściciela tablicy
+- **Parametry ścieżki**:
+  - `id`: ID tablicy
+  - `currentOwnerId`: ID aktualnego właściciela tablicy
+  - `newOwnerId`: ID użytkownika, który ma zostać nowym właścicielem
+- **Odpowiedź**: 
+  - Sukces: Komunikat o powodzeniu
+  - Błąd: Komunikat o błędzie
+
 ## Endpointy Listy Tablicy
 
 ### GET /api/boards/{boardId}/lists
@@ -188,27 +204,6 @@ Ten dokument zawiera kompleksową listę wszystkich endpointów API dostępnych 
   - Sukces: Komunikat o powodzeniu
   - Błąd: Komunikat o błędzie
 
-### POST /api/boards/{boardId}/lists/{listId}/owner/{ownerId}/members/{userId}
-- **Opis**: Dodaje członka do listy
-- **Parametry ścieżki**:
-  - `boardId`: ID tablicy
-  - `listId`: ID listy
-  - `ownerId`: ID właściciela listy
-  - `userId`: ID użytkownika do dodania jako członka
-- **Odpowiedź**: 
-  - Sukces: Komunikat o powodzeniu
-  - Błąd: Komunikat o błędzie
-
-### DELETE /api/boards/{boardId}/lists/{listId}/owner/{ownerId}/members/{userId}
-- **Opis**: Usuwa członka z listy
-- **Parametry ścieżki**:
-  - `boardId`: ID tablicy
-  - `listId`: ID listy
-  - `ownerId`: ID właściciela listy
-  - `userId`: ID członka do usunięcia
-- **Odpowiedź**: 
-  - Sukces: Komunikat o powodzeniu
-  - Błąd: Komunikat o błędzie
 
 ## Endpointy Karty
 

@@ -123,9 +123,9 @@ public class TaskController {
         }
         User user = userOptional.get();
 
-        // Sprawdz czy uzytkownik jest wlascicielem karty lub czlonkiem karty
-        if (!card.getOwner().equals(user) && !card.getMembers().contains(user)) {
-            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel karty lub czlonkowie moga tworzyc zadania!"));
+        // Sprawdz czy uzytkownik ma dostep do tablicy (jest wlascicielem lub czlonkiem tablicy)
+        if (!board.getOwner().equals(user) && !board.getMembers().contains(user)) {
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko osoby z dostepem do tablicy moga tworzyc zadania!"));
         }
 
         Task task = new Task(taskRequest.getDescription(), card, user);
@@ -187,9 +187,9 @@ public class TaskController {
         }
         User user = userOptional.get();
 
-        // Sprawdz czy uzytkownik jest wlascicielem zadania lub czlonkiem zadania
-        if (!task.getOwner().equals(user) && !task.getMembers().contains(user)) {
-            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel zadania lub czlonkowie moga je aktualizowac!"));
+        // Sprawdz czy uzytkownik ma dostep do tablicy (jest wlascicielem lub czlonkiem tablicy)
+        if (!board.getOwner().equals(user) && !board.getMembers().contains(user)) {
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko osoby z dostepem do tablicy moga aktualizowac zadania!"));
         }
 
         // Aktualizuj opis tylko jesli jest podany w zadaniu
@@ -257,9 +257,9 @@ public class TaskController {
         }
         User user = userOptional.get();
 
-        // Sprawdz czy uzytkownik jest wlascicielem zadania lub czlonkiem zadania
-        if (!task.getOwner().equals(user) && !task.getMembers().contains(user)) {
-            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel zadania lub czlonkowie moga je usunac!"));
+        // Sprawdz czy uzytkownik ma dostep do tablicy (jest wlascicielem lub czlonkiem tablicy)
+        if (!board.getOwner().equals(user) && !board.getMembers().contains(user)) {
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko osoby z dostepem do tablicy moga usuwac zadania!"));
         }
 
         taskRepository.delete(task);

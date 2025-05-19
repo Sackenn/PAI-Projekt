@@ -208,9 +208,9 @@ public class CardController {
         }
         User user = userOptional.get();
 
-        // Sprawdz czy uzytkownik jest wlascicielem karty lub czlonkiem karty
-        if (!card.getOwner().equals(user) && !card.getMembers().contains(user)) {
-            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel karty lub czlonkowie moga ja aktualizowac!"));
+        // Sprawdz czy uzytkownik ma dostep do tablicy (jest wlascicielem lub czlonkiem tablicy)
+        if (!board.getOwner().equals(user) && !board.getMembers().contains(user)) {
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko osoby z dostepem do tablicy moga aktualizowac karty!"));
         }
 
         card.setTitle(cardRequest.getTitle());
@@ -410,9 +410,9 @@ public class CardController {
         }
         User user = userOptional.get();
 
-        // Sprawdz czy uzytkownik jest wlascicielem karty lub czlonkiem karty
-        if (!card.getOwner().equals(user) && !card.getMembers().contains(user)) {
-            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel karty lub czlonkowie moga aktualizowac daty karty!"));
+        // Sprawdz czy uzytkownik ma dostep do tablicy (jest wlascicielem lub czlonkiem tablicy)
+        if (!board.getOwner().equals(user) && !board.getMembers().contains(user)) {
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko osoby z dostepem do tablicy moga aktualizowac daty karty!"));
         }
 
         card.setStartDate(cardRequest.getStartDate());
@@ -463,9 +463,9 @@ public class CardController {
         }
         User user = userOptional.get();
 
-        // Sprawdz czy uzytkownik jest wlascicielem karty lub czlonkiem karty
-        if (!card.getOwner().equals(user) && !card.getMembers().contains(user)) {
-            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel karty lub czlonkowie moga dodawac etykiety do karty!"));
+        // Sprawdz czy uzytkownik ma dostep do tablicy (jest wlascicielem lub czlonkiem tablicy)
+        if (!board.getOwner().equals(user) && !board.getMembers().contains(user)) {
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko osoby z dostepem do tablicy moga dodawac etykiety do karty!"));
         }
 
         // Sprawdz czy istnieje globalna etykieta o tej samej nazwie i kolorze
@@ -535,9 +535,9 @@ public class CardController {
         }
         User user = userOptional.get();
 
-        // Sprawdz czy uzytkownik jest wlascicielem karty lub czlonkiem karty
-        if (!card.getOwner().equals(user) && !card.getMembers().contains(user)) {
-            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel karty lub czlonkowie moga dodawac etykiety do karty!"));
+        // Sprawdz czy uzytkownik ma dostep do tablicy (jest wlascicielem lub czlonkiem tablicy)
+        if (!board.getOwner().equals(user) && !board.getMembers().contains(user)) {
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko osoby z dostepem do tablicy moga dodawac etykiety do karty!"));
         }
 
         Optional<Label> labelOptional = labelRepository.findById(labelId);
@@ -602,9 +602,9 @@ public class CardController {
         }
         User user = userOptional.get();
 
-        // Sprawdz czy uzytkownik jest wlascicielem karty lub czlonkiem karty
-        if (!card.getOwner().equals(user) && !card.getMembers().contains(user)) {
-            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel karty lub czlonkowie moga usuwac etykiety z karty!"));
+        // Sprawdz czy uzytkownik ma dostep do tablicy (jest wlascicielem lub czlonkiem tablicy)
+        if (!board.getOwner().equals(user) && !board.getMembers().contains(user)) {
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko osoby z dostepem do tablicy moga usuwac etykiety z karty!"));
         }
 
         Optional<Label> labelOptional = labelRepository.findById(labelId);

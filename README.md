@@ -33,12 +33,14 @@
 ### Uwierzytelnianie
 - `POST /api/auth/signup`: Rejestracja nowego użytkownika
 - `POST /api/auth/signin`: Uwierzytelnianie użytkownika
+- `POST /api/auth/signout`: Wylogowanie użytkownika
 
 ### Użytkownicy
 - `GET /api/user/profile/{userId}`: Pobierz profil użytkownika
 - `PUT /api/user/profile/{userId}/username`: Aktualizuj nazwę użytkownika
 - `PUT /api/user/profile/{userId}/email`: Aktualizuj email użytkownika
 - `PUT /api/user/profile/{userId}/password`: Aktualizuj hasło użytkownika
+- `GET /api/user/all`: Pobierz wszystkich użytkowników
 
 ### Tablice
 - `GET /api/boards/user/{userId}`: Pobierz wszystkie tablice dla użytkownika
@@ -48,10 +50,13 @@
 - `DELETE /api/boards/{id}/user/{userId}`: Usuń tablicę
 - `POST /api/boards/{id}/owner/{ownerId}/members/{userId}`: Dodaj członka do tablicy
 - `DELETE /api/boards/{id}/owner/{ownerId}/members/{userId}`: Usuń członka z tablicy
+- `PUT /api/boards/{id}/owner/{currentOwnerId}/change-owner/{newOwnerId}`: Zmień właściciela tablicy
 
 ### Listy
 - `GET /api/boards/{boardId}/lists`: Pobierz wszystkie listy dla tablicy
 - `POST /api/boards/{boardId}/lists`: Utwórz nową listę
+- `PUT /api/boards/{boardId}/lists/{listId}`: Aktualizuj listę
+- `DELETE /api/boards/{boardId}/lists/{listId}`: Usuń listę
 
 ### Karty
 - `GET /api/boards/{boardId}/lists/{listId}/cards`: Pobierz wszystkie karty dla listy

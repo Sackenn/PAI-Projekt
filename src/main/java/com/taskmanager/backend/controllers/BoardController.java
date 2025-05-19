@@ -128,9 +128,9 @@ public class BoardController {
 
         Board board = boardOptional.get();
 
-        // Sprawdz, czy uzytkownik jest wlascicielem
-        if (!board.getOwner().equals(user)) {
-            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel tablicy moze ja aktualizowac!"));
+        // Sprawdz, czy uzytkownik jest wlascicielem lub czlonkiem
+        if (!board.getOwner().equals(user) && !board.getMembers().contains(user)) {
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel lub czlonek tablicy moze ja aktualizowac!"));
         }
 
         board.setName(boardRequest.getName());
@@ -253,5 +253,62 @@ public class BoardController {
         boardRepository.save(board);
 
         return ResponseEntity.ok(new MessageResponse("Czlonek usuniety z tablicy pomyslnie!"));
+    }
+
+    /**
+     * Zmien wlasciciela tablicy
+     * @param id ID tablicy
+     * @param currentOwnerId ID aktualnego wlasciciela tablicy
+     * @param newOwnerId ID uzytkownika, ktory ma zostac nowym wlascicielem
+     * @return komunikat o powodzeniu, jesli zmiana sie powiodla
+     */
+    @PutMapping("/{id}/owner/{currentOwnerId}/change-owner/{newOwnerId}")
+    public ResponseEntity<?> changeOwner(@PathVariable Long id, @PathVariable Long currentOwnerId, @PathVariable Long newOwnerId) {
+        Optional<User> currentOwnerOptional = userRepository.findById(currentOwnerId);
+        if (!currentOwnerOptional.isPresent()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Aktualny wlasciciel nie znaleziony!"));
+        }
+
+        User currentOwner = currentOwnerOptional.get();
+
+        Optional<Board> boardOptional = boardRepository.findById(id);
+        if (!boardOptional.isPresent()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
+        }
+
+        Board board = boardOptional.get();
+
+        // Sprawdz, czy uzytkownik jest wlascicielem
+        if (!board.getOwner().equals(currentOwner)) {
+            return ResponseEntity.status(403).body(new MessageResponse("Blad: Tylko wlasciciel tablicy moze zmienic wlasciciela!"));
+        }
+
+        Optional<User> newOwnerOptional = userRepository.findById(newOwnerId);
+        if (!newOwnerOptional.isPresent()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Nowy wlasciciel nie znaleziony!"));
+        }
+
+        User newOwner = newOwnerOptional.get();
+
+        // Sprawdz, czy nowy wlasciciel jest czlonkiem tablicy
+        if (!board.getMembers().contains(newOwner) && !newOwner.equals(currentOwner)) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Blad: Nowy wlasciciel musi byc czlonkiem tablicy!"));
+        }
+
+        // Jesli aktualny wlasciciel nie jest nowym wlascicielem, dodaj go jako czlonka
+        if (!currentOwner.equals(newOwner)) {
+            board.addMember(currentOwner);
+        }
+
+        // Jesli nowy wlasciciel jest czlonkiem, usun go z listy czlonkow
+        if (board.getMembers().contains(newOwner)) {
+            board.removeMember(newOwner);
+        }
+
+        // Zmien wlasciciela
+        board.setOwner(newOwner);
+        boardRepository.save(board);
+
+        return ResponseEntity.ok(new MessageResponse("Wlasciciel tablicy zmieniony pomyslnie!"));
     }
 }
