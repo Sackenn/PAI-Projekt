@@ -36,7 +36,7 @@ public class BoardController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> getUserBoards(@PathVariable Long userId) {
         Optional<User> userOptional = userRepository.findById(userId);
-        if (!userOptional.isPresent()) {
+        if (userOptional.isEmpty()) {
             return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik nie znaleziony!"));
         }
 
@@ -63,7 +63,7 @@ public class BoardController {
     @PostMapping("/user/{userId}")
     public ResponseEntity<?> createBoard(@PathVariable Long userId, @Valid @RequestBody Board boardRequest) {
         Optional<User> userOptional = userRepository.findById(userId);
-        if (!userOptional.isPresent()) {
+        if (userOptional.isEmpty()) {
             return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik nie znaleziony!"));
         }
 
@@ -84,14 +84,14 @@ public class BoardController {
     @GetMapping("/{id}/user/{userId}")
     public ResponseEntity<?> getBoardById(@PathVariable Long id, @PathVariable Long userId) {
         Optional<User> userOptional = userRepository.findById(userId);
-        if (!userOptional.isPresent()) {
+        if (userOptional.isEmpty()) {
             return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik nie znaleziony!"));
         }
 
         User user = userOptional.get();
 
         Optional<Board> boardOptional = boardRepository.findById(id);
-        if (!boardOptional.isPresent()) {
+        if (boardOptional.isEmpty()) {
             return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
         }
 
@@ -115,14 +115,14 @@ public class BoardController {
     @PutMapping("/{id}/user/{userId}")
     public ResponseEntity<?> updateBoard(@PathVariable Long id, @PathVariable Long userId, @Valid @RequestBody Board boardRequest) {
         Optional<User> userOptional = userRepository.findById(userId);
-        if (!userOptional.isPresent()) {
+        if (userOptional.isEmpty()) {
             return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik nie znaleziony!"));
         }
 
         User user = userOptional.get();
 
         Optional<Board> boardOptional = boardRepository.findById(id);
-        if (!boardOptional.isPresent()) {
+        if (boardOptional.isEmpty()) {
             return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
         }
 
@@ -148,14 +148,14 @@ public class BoardController {
     @DeleteMapping("/{id}/user/{userId}")
     public ResponseEntity<?> deleteBoard(@PathVariable Long id, @PathVariable Long userId) {
         Optional<User> userOptional = userRepository.findById(userId);
-        if (!userOptional.isPresent()) {
+        if (userOptional.isEmpty()) {
             return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik nie znaleziony!"));
         }
 
         User user = userOptional.get();
 
         Optional<Board> boardOptional = boardRepository.findById(id);
-        if (!boardOptional.isPresent()) {
+        if (boardOptional.isEmpty()) {
             return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
         }
 
@@ -181,14 +181,14 @@ public class BoardController {
     @PostMapping("/{id}/owner/{ownerId}/members/{userId}")
     public ResponseEntity<?> addMemberToBoard(@PathVariable Long id, @PathVariable Long ownerId, @PathVariable Long userId) {
         Optional<User> ownerOptional = userRepository.findById(ownerId);
-        if (!ownerOptional.isPresent()) {
+        if (ownerOptional.isEmpty()) {
             return ResponseEntity.badRequest().body(new MessageResponse("Blad: Wlasciciel nie znaleziony!"));
         }
 
         User owner = ownerOptional.get();
 
         Optional<Board> boardOptional = boardRepository.findById(id);
-        if (!boardOptional.isPresent()) {
+        if (boardOptional.isEmpty()) {
             return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
         }
 
@@ -200,7 +200,7 @@ public class BoardController {
         }
 
         Optional<User> memberUserOptional = userRepository.findById(userId);
-        if (!memberUserOptional.isPresent()) {
+        if (memberUserOptional.isEmpty()) {
             return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik czlonek nie znaleziony!"));
         }
 
@@ -223,14 +223,14 @@ public class BoardController {
     @DeleteMapping("/{id}/owner/{ownerId}/members/{userId}")
     public ResponseEntity<?> removeMemberFromBoard(@PathVariable Long id, @PathVariable Long ownerId, @PathVariable Long userId) {
         Optional<User> ownerOptional = userRepository.findById(ownerId);
-        if (!ownerOptional.isPresent()) {
+        if (ownerOptional.isEmpty()) {
             return ResponseEntity.badRequest().body(new MessageResponse("Blad: Wlasciciel nie znaleziony!"));
         }
 
         User owner = ownerOptional.get();
 
         Optional<Board> boardOptional = boardRepository.findById(id);
-        if (!boardOptional.isPresent()) {
+        if (boardOptional.isEmpty()) {
             return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
         }
 
@@ -242,7 +242,7 @@ public class BoardController {
         }
 
         Optional<User> memberUserOptional = userRepository.findById(userId);
-        if (!memberUserOptional.isPresent()) {
+        if (memberUserOptional.isEmpty()) {
             return ResponseEntity.badRequest().body(new MessageResponse("Blad: Uzytkownik czlonek nie znaleziony!"));
         }
 
@@ -265,14 +265,14 @@ public class BoardController {
     @PutMapping("/{id}/owner/{currentOwnerId}/change-owner/{newOwnerId}")
     public ResponseEntity<?> changeOwner(@PathVariable Long id, @PathVariable Long currentOwnerId, @PathVariable Long newOwnerId) {
         Optional<User> currentOwnerOptional = userRepository.findById(currentOwnerId);
-        if (!currentOwnerOptional.isPresent()) {
+        if (currentOwnerOptional.isEmpty()) {
             return ResponseEntity.badRequest().body(new MessageResponse("Blad: Aktualny wlasciciel nie znaleziony!"));
         }
 
         User currentOwner = currentOwnerOptional.get();
 
         Optional<Board> boardOptional = boardRepository.findById(id);
-        if (!boardOptional.isPresent()) {
+        if (boardOptional.isEmpty()) {
             return ResponseEntity.badRequest().body(new MessageResponse("Blad: Tablica nie znaleziona!"));
         }
 
@@ -284,7 +284,7 @@ public class BoardController {
         }
 
         Optional<User> newOwnerOptional = userRepository.findById(newOwnerId);
-        if (!newOwnerOptional.isPresent()) {
+        if (newOwnerOptional.isEmpty()) {
             return ResponseEntity.badRequest().body(new MessageResponse("Blad: Nowy wlasciciel nie znaleziony!"));
         }
 
