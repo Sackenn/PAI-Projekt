@@ -56,11 +56,17 @@ public class BoardListController {
 
     @PostMapping
     public ResponseEntity<?> createBoardList(@PathVariable Long boardId, @Valid @RequestBody BoardList boardListRequest, @RequestParam(required = false) Long userId) {
+<<<<<<< HEAD
 
 
         // Jesli userId jest null, zwroc komunikat o bledzie
         if (userId == null) {
 
+=======
+
+        // Jesli userId jest null, zwroc komunikat o bledzie
+        if (userId == null) {
+>>>>>>> 25e8c4415be58ea91322ea692b603b0d28fd3786
             return ResponseEntity.badRequest().body(new MessageResponse("Blad: userId jest wymagane!"));
         }
         Optional<Board> boardOptional = boardRepository.findById(boardId);
