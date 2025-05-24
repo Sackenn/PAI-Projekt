@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menedzer Zadan</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header>
+        <h1>Menedzer Zadan</h1>
+        <nav>
+            <ul>
+                <li><a href="#" id="home-link">Strona Glowna</a></li>
+                <li><a href="#" id="boards-link">Moje Tablice</a></li>
+                <li><a href="#" id="login-link">Logowanie</a></li>
+                <li><a href="#" id="register-link">Rejestracja</a></li>
+                <li><a href="#" id="logout-link" style="display: none;">Wyloguj</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home-section" class="active-section">
+            <h2>Witaj w Menedzerze Zadan</h2>
+            <p>Prosta aplikacja do zarzadzania zadaniami i projektami.</p>
+            <div class="cta-buttons">
+                <button id="get-started-btn">Rozpocznij</button>
+            </div>
+
+            <div id="user-profile-section" style="display: none; margin-top: 30px;">
+                <h3>Twój Profil</h3>
+
+                <!-- Formularz aktualizacji nazwy użytkownika -->
+                <form id="username-form" class="profile-form">
+                    <h4>Aktualizacja nazwy użytkownika</h4>
+                    <div class="form-group">
+                        <label for="profile-username">Nazwa Użytkownika</label>
+                        <input type="text" id="profile-username" name="username" required>
+                    </div>
+                    <button type="submit">Aktualizuj nazwę użytkownika</button>
+                </form>
+
+                <!-- Formularz aktualizacji emaila -->
+                <form id="email-form" class="profile-form">
+                    <h4>Aktualizacja adresu email</h4>
+                    <div class="form-group">
+                        <label for="profile-email">Email</label>
+                        <input type="email" id="profile-email" name="email" required>
+                    </div>
+                    <button type="submit">Aktualizuj email</button>
+                </form>
+
+                <!-- Formularz aktualizacji hasła -->
+                <form id="password-form" class="profile-form">
+                    <h4>Aktualizacja hasła</h4>
+                    <div class="form-group">
+                        <label for="profile-current-password">Aktualne Hasło</label>
+                        <input type="password" id="profile-current-password" name="currentPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-password">Nowe Hasło</label>
+                        <input type="password" id="profile-password" name="password" required>
+                    </div>
+                    <button type="submit">Aktualizuj hasło</button>
+                </form>
+
+                <div id="profile-message" style="margin-top: 10px;"></div>
+            </div>
+        </section>
+
+        <section id="boards-section" class="hidden-section">
+            <h2>Moje Tablice</h2>
+            <div class="board-actions">
+                <button id="create-board-btn">Utworz Nowa Tablice</button>
+            </div>
+            <div class="boards-layout">
+                <div id="boards-container" class="boards-container">
+                    <!-- Tablice beda ladowane tutaj dynamicznie -->
+                </div>
+                <div id="board-management-sidebar" class="board-management-sidebar">
+                    <h3>Zarządzanie Tablicą</h3>
+                    <div id="board-selection">
+                        <label for="board-select">Wybierz tablicę:</label>
+                        <select id="board-select">
+                            <option value="">Wybierz tablicę...</option>
+                            <!-- Opcje będą dodawane dynamicznie -->
+                        </select>
+                    </div>
+                    <div id="board-members-management" class="board-members-management">
+                        <h4>Dodaj użytkownika</h4>
+                        <div class="add-member-form">
+                            <select id="user-select">
+                                <option value="">Wybierz użytkownika...</option>
+                                <!-- Opcje będą dodawane dynamicznie -->
+                            </select>
+                            <button id="add-member-btn">Dodaj</button>
+                        </div>
+                        <h4>Członkowie tablicy</h4>
+                        <div id="board-members-list" class="board-members-list">
+                            <!-- Lista członków będzie dodawana dynamicznie -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="board-detail-section" class="hidden-section">
+            <div class="board-header">
+                <h2 id="board-title">Tytul Tablicy</h2>
+                <div class="board-actions">
+                    <button id="add-list-btn">Dodaj Liste</button>
+                </div>
+            </div>
+            <div id="lists-container" class="lists-container">
+                <!-- Listy beda ladowane tutaj dynamicznie -->
+            </div>
+        </section>
+
+        <section id="login-section" class="hidden-section">
+            <h2>Logowanie</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username">Nazwa Uzytkownika</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Haslo</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit">Zaloguj</button>
+            </form>
+        </section>
+
+        <section id="register-section" class="hidden-section">
+            <h2>Rejestracja</h2>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="reg-username">Nazwa Uzytkownika</label>
+                    <input type="text" id="reg-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-email">Email</label>
+                    <input type="email" id="reg-email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-password">Haslo</label>
+                    <input type="password" id="reg-password" name="password" required>
+                </div>
+                <button type="submit">Zarejestruj</button>
+            </form>
+        </section>
+
+        <!-- Modal Szczegoly Karty -->
+        <section id="card-detail-modal" class="modal hidden-section">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2 id="card-detail-title">Tytul Karty</h2>
+
+                <div class="form-group">
+                    <label for="card-title-input">Tytul</label>
+                    <input type="text" id="card-title-input" name="title">
+                </div>
+
+                <div class="form-group">
+                    <label for="card-description-input">Opis</label>
+                    <textarea id="card-description-input" name="description" rows="3"></textarea>
+                </div>
+
+                <div class="dates-section">
+                    <h3>Daty</h3>
+                    <div class="date-info">
+                        <p>Utworzono: <span id="card-creation-date">Niedostepne</span></p>
+                    </div>
+                    <div class="form-group">
+                        <label for="card-start-date">Data Rozpoczecia</label>
+                        <input type="datetime-local" id="card-start-date" name="startDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="card-due-date">Termin Wykonania</label>
+                        <input type="datetime-local" id="card-due-date" name="dueDate">
+                    </div>
+                    <button id="save-dates-btn">Zapisz Daty</button>
+                </div>
+
+                <div class="labels-section">
+                    <h3>Etykiety</h3>
+                    <div id="labels-container" class="labels-container">
+                        <!-- Etykiety beda ladowane tutaj dynamicznie -->
+                    </div>
+                    <div class="global-labels-section">
+                        <h4>Globalne Etykiety</h4>
+                        <div id="global-labels-container" class="global-labels-container">
+                            <!-- Globalne etykiety beda ladowane tutaj dynamicznie -->
+                        </div>
+                    </div>
+                    <div class="add-label-form">
+                        <div class="form-group">
+                            <label for="label-name-input">Nazwa Etykiety</label>
+                            <input type="text" id="label-name-input" name="labelName">
+                        </div>
+                        <div class="form-group">
+                            <label for="label-color-input">Kolor</label>
+                            <input type="color" id="label-color-input" name="labelColor" value="#4CAF50">
+                        </div>
+                        <div class="form-group">
+                            <label for="global-label-checkbox">Ustaw jako Globalna</label>
+                            <input type="checkbox" id="global-label-checkbox" name="globalLabel">
+                        </div>
+                        <button id="add-label-btn">Dodaj Etykiete</button>
+                    </div>
+                </div>
+
+                <div class="tasks-section">
+                    <h3>Zadania</h3>
+                    <div id="tasks-container" class="tasks-container">
+                        <!-- Zadania beda ladowane tutaj dynamicznie -->
+                    </div>
+                    <div class="add-task-form">
+                        <div class="form-group">
+                            <label for="task-description-input">Nowe Zadanie</label>
+                            <input type="text" id="task-description-input" name="taskDescription">
+                        </div>
+                        <button id="add-task-btn">Dodaj Zadanie</button>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button id="save-card-btn">Zapisz Karte</button>
+                    <button id="delete-card-btn" class="danger-btn">Usun Karte</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Menedzer Zadan. Wszelkie prawa zastrzezone.</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
