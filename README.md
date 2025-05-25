@@ -1,94 +1,158 @@
-## Projekt wykonali:
-### Oskar Serafińczuk 159845 (Sackenn)
-### Konrad Milewski 159826 (KonradM1L)
-### Jan Jesień 159817 (hardkoreJanusz)
-# Struktura Projektu
+# Dokumentacja Projektu Task Manager
 
-## Komponenty Backendu
+## Projekt Wykonali
+- **Oskar Serafińczuk 159845 (Sackenn)** - Lider zespołu, odpowiedzialny za serwer, API oraz bazę danych
+- **Konrad Milewski 159826 (KonradM1L)** - Odpowiedzialny za frontend aplikacji
+- **Jan Jesień 159817 (hardkoreJanusz)** - Odpowiedzialny za frontend aplikacji
 
-- **Models**: Definiują strukturę danych
-  - User: Reprezentuje użytkowników aplikacji
-  - Board: Reprezentuje projekt lub tablicę zadań
-  - BoardList: Reprezentuje listę w tablicy
-  - Card: Reprezentuje kartę zadania w liście
-  - Task: Reprezentuje podzadanie w karcie
-  - Label: Reprezentuje kolorową etykietę, która może być dołączona do karty
+## Temat Projektu
+Task Manager to aplikacja webowa służąca do zarządzania zadaniami i projektami. Aplikacja umożliwia tworzenie tablic projektów, list zadań, kart zadań oraz podzadań, a także przypisywanie użytkowników do poszczególnych elementów. Inspiracją dla projektu były popularne narzędzia do zarządzania projektami, takie jak Trello czy Asana.
 
-- **Controllers**: Obsługują żądania HTTP
-  - AuthController: Obsługuje rejestrację i uwierzytelnianie użytkowników
-  - UserController: Zarządza profilami użytkowników
-  - BoardController: Zarządza tablicami
-  - BoardListController: Zarządza listami w tablicach
-  - CardController: Zarządza kartami w listach
-  - TaskController: Zarządza zadaniami w kartach
-  - LabelController: Zarządza globalnymi etykietami
+## Lista funkcjonalności
 
-- **Repositories**: Interfejs z bazą danych
-  - UserRepository: Zarządza danymi użytkowników
-  - BoardRepository: Zarządza danymi tablic
-  - BoardListRepository: Zarządza danymi list
-  - CardRepository: Zarządza danymi kart
-  - TaskRepository: Zarządza danymi zadań
-  - LabelRepository: Zarządza danymi etykiet
+### Zarządzanie Użytkownikami
+- Rejestracja nowych użytkowników
+- Logowanie i wylogowywanie użytkowników
+- Zarządzanie profilem użytkownika (zmiana nazwy użytkownika, adresu email, hasła)
+- Przeglądanie listy wszystkich użytkowników
 
+### Zarządzanie Tablicami
+- Tworzenie nowych tablic projektów
+- Przeglądanie, edycja i usuwanie tablic
+- Dodawanie i usuwanie członków tablicy
+- Zmiana właściciela tablicy
 
-## Endpointy API
+### Zarządzanie Listami
+- Tworzenie nowych list w ramach tablicy
+- Przeglądanie, edycja i usuwanie list
 
-### Uwierzytelnianie
-- `POST /api/auth/signup`: Rejestracja nowego użytkownika
-- `POST /api/auth/signin`: Uwierzytelnianie użytkownika
-- `POST /api/auth/signout`: Wylogowanie użytkownika
+### Zarządzanie Kartami
+- Tworzenie nowych kart zadań w ramach listy
+- Przeglądanie, edycja i usuwanie kart
+- Ustawianie dat rozpoczęcia i zakończenia zadania
+- Dodawanie etykiet do kart
+- Zmiana kolejności kart
 
-### Użytkownicy
-- `GET /api/user/profile/{userId}`: Pobierz profil użytkownika
-- `PUT /api/user/profile/{userId}/username`: Aktualizuj nazwę użytkownika
-- `PUT /api/user/profile/{userId}/email`: Aktualizuj email użytkownika
-- `PUT /api/user/profile/{userId}/password`: Aktualizuj hasło użytkownika
-- `GET /api/user/all`: Pobierz wszystkich użytkowników
+### Zarządzanie Zadaniami
+- Tworzenie podzadań w ramach karty
+- Przeglądanie, edycja i usuwanie podzadań
+- Oznaczanie podzadań jako ukończone
 
-### Tablice
-- `GET /api/boards/user/{userId}`: Pobierz wszystkie tablice dla użytkownika
-- `POST /api/boards/user/{userId}`: Utwórz nową tablicę
-- `GET /api/boards/{id}/user/{userId}`: Pobierz konkretną tablicę
-- `PUT /api/boards/{id}/user/{userId}`: Aktualizuj tablicę
-- `DELETE /api/boards/{id}/user/{userId}`: Usuń tablicę
-- `POST /api/boards/{id}/owner/{ownerId}/members/{userId}`: Dodaj członka do tablicy
-- `DELETE /api/boards/{id}/owner/{ownerId}/members/{userId}`: Usuń członka z tablicy
-- `PUT /api/boards/{id}/owner/{currentOwnerId}/change-owner/{newOwnerId}`: Zmień właściciela tablicy
+### Zarządzanie Etykietami
+- Tworzenie lokalnych oraz globalnych etykiet
+- Dodawanie oraz usuwanie etykiet z kart
 
-### Listy
-- `GET /api/boards/{boardId}/lists`: Pobierz wszystkie listy dla tablicy
-- `POST /api/boards/{boardId}/lists`: Utwórz nową listę
-- `PUT /api/boards/{boardId}/lists/{listId}`: Aktualizuj listę
-- `DELETE /api/boards/{boardId}/lists/{listId}`: Usuń listę
+## Założenia Architektoniczne
 
-### Karty
-- `GET /api/boards/{boardId}/lists/{listId}/cards`: Pobierz wszystkie karty dla listy
-- `POST /api/boards/{boardId}/lists/{listId}/cards`: Utwórz nową kartę
-- `GET /api/boards/{boardId}/lists/{listId}/cards/{cardId}`: Pobierz konkretną kartę
-- `PUT /api/boards/{boardId}/lists/{listId}/cards/{cardId}`: Aktualizuj kartę
-- `DELETE /api/boards/{boardId}/lists/{listId}/cards/{cardId}`: Usuń kartę
-- `POST /api/boards/{boardId}/lists/{listId}/cards/{cardId}/members/{userId}`: Dodaj członka do karty
-- `DELETE /api/boards/{boardId}/lists/{listId}/cards/{cardId}/members/{userId}`: Usuń członka z karty
-- `PUT /api/boards/{boardId}/lists/{listId}/cards/{cardId}/dates`: Aktualizuj daty karty
+Aplikacja korzysta z architektury klient-serwer.
 
-### Zadania
-- `GET /api/boards/{boardId}/lists/{listId}/cards/{cardId}/tasks`: Pobierz wszystkie zadania dla karty
-- `POST /api/boards/{boardId}/lists/{listId}/cards/{cardId}/tasks`: Utwórz nowe zadanie
-- `PUT /api/boards/{boardId}/lists/{listId}/cards/{cardId}/tasks/{taskId}`: Aktualizuj zadanie
-- `DELETE /api/boards/{boardId}/lists/{listId}/cards/{cardId}/tasks/{taskId}`: Usuń zadanie
+### Architektura Ogólna
+- **Frontend**: Aplikacja React działająca w przeglądarce użytkownika
+- **Backend**: Serwer Spring Boot udostępniający API REST
+- **Baza danych**: MySQL przechowująca dane aplikacji
 
-### Etykiety
-- `POST /api/boards/{boardId}/lists/{listId}/cards/{cardId}/labels`: Dodaj etykietę do karty
-- `POST /api/boards/{boardId}/lists/{listId}/cards/{cardId}/global-labels/{labelId}`: Dodaj globalną etykietę do karty
-- `DELETE /api/boards/{boardId}/lists/{listId}/cards/{cardId}/labels/{labelId}`: Usuń etykietę z karty
-- `GET /api/labels/global`: Pobierz wszystkie globalne etykiety
-- `POST /api/labels/global`: Utwórz nową globalną etykietę
-- `DELETE /api/labels/global/{id}`: Usuń globalną etykietę
+### Architektura Backendu
+Backend aplikacji został zbudowany w oparciu o wzorzec MVC (Model-View-Controller), gdzie:
+- **Model**: Klasy encji reprezentujące struktury danych (User, Board, BoardList, Card, Task, Label)
+- **View**: Reprezentowane przez odpowiedzi JSON z API
+- **Controller**: Kontrolery obsługujące żądania HTTP i zarządzające logiką biznesową
 
-### Obsługa Błędów
-Backend zwraca odpowiednie kody statusu HTTP i komunikaty o błędach:
-- 400 Bad Request: Nieprawidłowe dane wejściowe
-- 403 Forbidden: Użytkownik nie ma uprawnień
-- 404 Not Found: Zasób nie istnieje
-- 500 Internal Server Error: Błąd po stronie serwera
+### Architektura Frontendu
+Frontend aplikacji został zbudowany w oparciu o komponenty React, z wykorzystaniem:
+- **Context API**: Do zarządzania stanem globalnym aplikacji (np. informacje o zalogowanym użytkowniku)
+- **React Router**: Do nawigacji między różnymi widokami aplikacji
+- **Axios**: Do komunikacji z API backendu
+
+### Komunikacja
+Komunikacja między frontendem a backendem odbywa się poprzez API REST, z wykorzystaniem formatu JSON do wymiany danych.
+
+## Wykorzystanie Narzędzi Programowych
+
+### Backend
+- **Java 11**: Język programowania używany do implementacji backendu
+- **Spring Boot**: Framework ułatwiający tworzenie aplikacji Spring
+- **MySQL**: System zarządzania bazą danych
+- **Maven**: Narzędzie do zarządzania zależnościami i budowania projektu
+
+### Frontend
+- **JavaScript/ES6+**: Język programowania używany do implementacji frontendu
+- **React**: Biblioteka JavaScript do budowania interfejsów użytkownika
+- **React Router**: Do obsługi nawigacji w aplikacji
+- **Axios**: Biblioteka do wykonywania żądań HTTP
+- **node.js**: Środowisko uruchomieniowe JavaScript
+
+## Opis Techniczny
+
+### Moduły Backendu
+
+#### Moduł Models
+Definiuje strukturę danych aplikacji:
+- **User**: Reprezentuje użytkowników aplikacji. Przechowuje informacje o nazwie użytkownika, emailu i haśle. Posiada relacje z tablicami, listami, kartami i zadaniami (jako właściciel lub członek).
+- **Board**: Reprezentuje tablicę projektów. Przechowuje nazwę tablicy i relacje z właścicielem, członkami i listami.
+- **BoardList**: Reprezentuje listę w tablicy. Przechowuje nazwę listy, pozycję i relacje z tablicą, właścicielem, członkami i kartami.
+- **Card**: Reprezentuje kartę zadania w liście. Przechowuje tytuł, opis, pozycję, daty rozpoczęcia i zakończenia oraz relacje z listą, właścicielem, członkami, zadaniami i etykietami.
+- **Task**: Reprezentuje podzadanie w karcie. Przechowuje opis, status ukończenia i relacje z kartą, właścicielem i członkami.
+- **Label**: Reprezentuje etykietę, która może być dołączona do karty. Przechowuje nazwę, kolor i relacje z kartami.
+
+#### Moduł Controllers
+Obsługuje żądania HTTP i implementuje logikę biznesową:
+- **AuthController**: Obsługuje rejestrację, logowanie i wylogowywanie użytkowników.
+- **UserController**: Zarządza profilami użytkowników (pobieranie, aktualizacja).
+- **BoardController**: Zarządza tablicami (tworzenie, pobieranie, aktualizacja, usuwanie, zarządzanie członkami).
+- **BoardListController**: Zarządza listami w tablicach (tworzenie, pobieranie, aktualizacja, usuwanie).
+- **CardController**: Zarządza kartami w listach (tworzenie, pobieranie, aktualizacja, usuwanie, zarządzanie członkami i etykietami).
+- **TaskController**: Zarządza zadaniami w kartach (tworzenie, pobieranie, aktualizacja, usuwanie).
+- **LabelController**: Zarządza globalnymi etykietami (tworzenie, pobieranie, usuwanie).
+
+#### Moduł Repositories
+Zapewnia interfejs bazy danych:
+- **UserRepository**: Zarządza danymi użytkowników.
+- **BoardRepository**: Zarządza danymi tablic.
+- **BoardListRepository**: Zarządza danymi list.
+- **CardRepository**: Zarządza danymi kart.
+- **TaskRepository**: Zarządza danymi zadań.
+- **LabelRepository**: Zarządza danymi etykiet.
+
+#### Moduł Config
+Zawiera konfigurację aplikacji:
+- **WebConfig**: Konfiguruje CORS i konwertery typów.
+
+### Baza Danych
+Baza danych MySQL przechowuje dane aplikacji w następujących tabelach:
+- **users**: Przechowuje dane użytkowników.
+- **boards**: Przechowuje dane tablic.
+- **board_members**: Tabela łącząca dla relacji wiele-do-wielu między tablicami a użytkownikami (członkowie tablicy).
+- **board_lists**: Przechowuje dane list.
+- **board_list_members**: Tabela łącząca dla relacji wiele-do-wielu między listami a użytkownikami (członkowie listy).
+- **cards**: Przechowuje dane kart.
+- **card_members**: Tabela łącząca dla relacji wiele-do-wielu między kartami a użytkownikami (członkowie karty).
+- **tasks**: Przechowuje dane zadań.
+- **task_members**: Tabela łącząca dla relacji wiele-do-wielu między zadaniami a użytkownikami (członkowie zadania).
+- **labels**: Przechowuje dane etykiet.
+- **card_labels**: Tabela łącząca dla relacji wiele-do-wielu między kartami a etykietami.
+
+### Moduły Frontendu
+
+#### Moduł Components
+Zawiera komponenty React używane w aplikacji:
+- **Header**: Nagłówek aplikacji z menu nawigacyjnym.
+- **Footer**: Stopka aplikacji.
+- **BoardMembers**: Komponent do zarządzania członkami tablicy.
+- **CardDetail**: Komponent do wyświetlania i edycji szczegółów karty.
+
+#### Moduł Pages
+Zawiera główne widoki aplikacji:
+- **Home**: Strona główna aplikacji.
+- **Login**: Strona logowania.
+- **Register**: Strona rejestracji.
+- **Boards**: Strona z listą tablic użytkownika.
+- **BoardDetail**: Strona ze szczegółami tablicy.
+- **NotFound**: Strona 404 (nie znaleziono).
+
+#### Moduł Context
+Zawiera konteksty React do zarządzania stanem globalnym:
+- **AuthContext**: Przechowuje informacje o zalogowanym użytkowniku i udostępnia funkcje do logowania, wylogowywania i rejestracji.
+
+#### Moduł Services
+Zawiera usługi do komunikacji z API:
+- **api.js**: Zawiera funkcje do wykonywania żądań HTTP do API backendu.
