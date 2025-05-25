@@ -1,6 +1,6 @@
 # Endpointy API
 
-Ten dokument zawiera kompleksową listę wszystkich endpointów API dostępnych w aplikacji Task Manager.
+Ten dokument zawiera listę wszystkich endpointów API.
 
 ## Endpointy Uwierzytelniania
 
