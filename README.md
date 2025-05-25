@@ -1,3 +1,7 @@
+## Projekt wykonali:
+### Oskar Serafińczuk 159845 (Sackenn)
+### Konrad Milewski 159826 (KonradM1L)
+### Jan Jesień 159817 (hardkoreJanusz)
 # Struktura Projektu
 
 ## Komponenty Backendu
