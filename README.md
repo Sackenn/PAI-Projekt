@@ -21,6 +21,9 @@ Task Manager to aplikacja webowa służąca do zarządzania zadaniami i projekta
 - Przeglądanie, edycja i usuwanie tablic
 - Dodawanie i usuwanie członków tablicy
 - Zmiana właściciela tablicy
+- Obsługa przeciągania i upuszczania kart między listami
+- Mutacje do dodawania list i przenoszenia kart z użyciem React Query
+- Obsługa powiadomień (toastów) i stanów błędów
 
 ### Zarządzanie Listami
 - Tworzenie nowych list w ramach tablicy
@@ -41,6 +44,29 @@ Task Manager to aplikacja webowa służąca do zarządzania zadaniami i projekta
 ### Zarządzanie Etykietami
 - Tworzenie lokalnych oraz globalnych etykiet
 - Dodawanie oraz usuwanie etykiet z kart
+
+## Zarządzanie cockpitu:
+- **Liczba kart na listę** - Rozkład zadań w kolumnach Kanban
+- **Liczba kart na termin** - Analiza terminów według tygodni
+- **Liczba kart na członka** - Obciążenie pracą zespołu
+- **Liczba kart na etykietę** - Popularność kategorii zadań
+- **Statystyki priorytetów** - Rozkład ważności zadań
+- **Wskaźniki wydajności** - Procent ukończenia i przeterminowane zadania
+
+## Kalendarz Timeline
+- Zadania wyświetlane w dniach ich terminów
+- Nawigacja między miesiącami
+- Kolorowe etykiety priorytetów
+- Szybki przegląd miesięczny
+
+## Jak używać
+
+1. **Widok tablicy** - Tradycyjny widok Kanban z listami zadań
+2. **Kalendarz timeline** - Przełącz się na widok kalendarza, aby zobaczyć zadania według dat
+3. **Dashboard Analytics** - Cockpit z kompletną analizą projektu
+4. **Dodawanie zadań** - Kliknij "Dodaj kartę" w dowolnej liście
+5. **Edycja zadań** - Kliknij na kartę, aby otworzyć szczegóły
+6. **Przeciąganie** - Przenoś karty między listami metodą drag & drop
 
 ## Założenia Architektoniczne
 
@@ -80,6 +106,14 @@ Komunikacja między frontendem a backendem odbywa się poprzez API REST, z wykor
 - **React Router**: Do obsługi nawigacji w aplikacji
 - **Axios**: Biblioteka do wykonywania żądań HTTP
 - **node.js**: Środowisko uruchomieniowe JavaScript
+- 
+- #### Technologie
+- **React 18 + TypeScript**: Nowoczesny stack do tworzenia aplikacji SPA
+- **Stylowanie**: Tailwind CSS + komponenty UI (Radix, Lucide)
+- **Zarządzanie stanem**: React Query (TanStack)
+- **Routing**: Wouter
+- **Drag & Drop**: Obsługa przeciągania kart między listami
+- **Daty i czas**: date-fns z lokalizacją dla języka polskiego
 
 ## Opis Techniczny
 
