@@ -21,15 +21,22 @@ const Header = () => {
               Strona Glowna
             </NavLink>
           </li>
-          
+
           {currentUser && (
-            <li>
-              <NavLink to="/boards">
-                Moje Tablice
-              </NavLink>
-            </li>
+            <>
+              <li>
+                <NavLink to="/boards">
+                  Moje Tablice
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/user">
+                  Uzytkownik
+                </NavLink>
+              </li>
+            </>
           )}
-          
+
           {!currentUser && (
             <>
               <li>
@@ -44,7 +51,7 @@ const Header = () => {
               </li>
             </>
           )}
-          
+
           {currentUser && (
             <li>
               <button onClick={handleLogout} className="nav-button">

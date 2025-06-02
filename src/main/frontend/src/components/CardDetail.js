@@ -123,7 +123,7 @@ const CardDetail = ({ boardId, listId, cardId, onClose, onCardUpdate, onCardDele
 
   const handleDeleteCard = async () => {
     try {
-      if (!window.confirm('Are you sure you want to delete this card? This action cannot be undone.')) {
+      if (!window.confirm('Czy na pewno chcesz usunac ta karte? Nie bedzie mozna tego cofnac.')) {
         return;
       }
 
@@ -260,7 +260,7 @@ const CardDetail = ({ boardId, listId, cardId, onClose, onCardUpdate, onCardDele
   const handleDeleteGlobalLabel = async (labelId) => {
     try {
       // Confirm before deleting
-      if (!window.confirm('Are you sure you want to delete this global label? This will remove it from all cards.')) {
+      if (!window.confirm('Czy na pewno chcesz usunac ta globalna etykiete? Zostanie ona usunieta ze wszystkich kart.')) {
         return;
       }
 
@@ -399,7 +399,7 @@ const CardDetail = ({ boardId, listId, cardId, onClose, onCardUpdate, onCardDele
                     <span 
                       className="global-label-delete" 
                       onClick={() => handleDeleteGlobalLabel(label.id)}
-                      title="Delete global label"
+                      title="Usuń globalną etykietę"
                     >
                       &times;
                     </span>
@@ -450,7 +450,7 @@ const CardDetail = ({ boardId, listId, cardId, onClose, onCardUpdate, onCardDele
         </div>
 
         <div className="tasks-section">
-          <h3>Tasks</h3>
+          <h3>Zadania</h3>
           <div className="tasks-container">
             {tasks.length > 0 ? (
               tasks.map(task => (
@@ -473,15 +473,15 @@ const CardDetail = ({ boardId, listId, cardId, onClose, onCardUpdate, onCardDele
                 </div>
               ))
             ) : (
-              <p>No tasks added to this card yet.</p>
+              <p>Nie dodano jeszcze zadań do tej karty.</p>
             )}
           </div>
 
           <div className="add-task-form">
-            <h4>Add Task</h4>
+            <h4>Dodaj zadanie</h4>
             <form onSubmit={handleAddTask}>
               <div className="form-group">
-                <label htmlFor="task-description-input">Task Description</label>
+                <label htmlFor="task-description-input">Opis zadania</label>
                 <input 
                   type="text" 
                   id="task-description-input" 
@@ -490,14 +490,14 @@ const CardDetail = ({ boardId, listId, cardId, onClose, onCardUpdate, onCardDele
                   required
                 />
               </div>
-              <button type="submit">Add Task</button>
+              <button type="submit">Dodaj zadanie</button>
             </form>
           </div>
         </div>
 
         <div className="modal-actions">
-          <button onClick={handleSaveCard}>Save Card</button>
-          <button onClick={handleDeleteCard} className="danger-btn">Delete Card</button>
+          <button onClick={handleSaveCard}>Zapisz kartę</button>
+          <button onClick={handleDeleteCard} className="danger-btn">Usuń kartę</button>
         </div>
       </div>
     </div>

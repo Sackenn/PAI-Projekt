@@ -136,7 +136,7 @@ const BoardDetail = () => {
   };
 
   const handleDeleteList = async (listId) => {
-    if (!window.confirm('Are you sure you want to delete this list? This action cannot be undone.')) {
+    if (!window.confirm('Czy na pewno chcesz usunac ta liste? Nie bedzie mozna tego cofnac.\n')) {
       return;
     }
 
@@ -282,13 +282,13 @@ const BoardDetail = () => {
                       className="edit-list-btn" 
                       onClick={() => handleEditList(list.id)}
                     >
-                      Edit
+                      Edytuj
                     </button>
                     <button 
                       className="delete-list-btn danger-btn" 
                       onClick={() => handleDeleteList(list.id)}
                     >
-                      Delete
+                      Usuń
                     </button>
                   </div>
                 </>
@@ -326,7 +326,7 @@ const BoardDetail = () => {
 
                   {card.tasks && card.tasks.length > 0 && (
                     <div className="card-tasks">
-                      {card.tasks.filter(task => task.completed).length}/{card.tasks.length} tasks
+                      {card.tasks.filter(task => task.completed).length}/{card.tasks.length} zadania
                     </div>
                   )}
                 </div>
@@ -355,7 +355,7 @@ const BoardDetail = () => {
                   ></textarea>
                 </div>
                 <div className="form-actions">
-                  <button type="submit">Add Card</button>
+                  <button type="submit">Dodaj karte</button>
                   <button 
                     type="button" 
                     onClick={() => setAddingCardToListId(null)}
@@ -369,7 +369,7 @@ const BoardDetail = () => {
                 className="add-card-btn" 
                 onClick={() => setAddingCardToListId(list.id)}
               >
-                + Add Card
+                + Dodaj karte
               </button>
             )}
           </div>
