@@ -61,7 +61,7 @@ const Boards = () => {
   };
 
   const handleDeleteBoard = async (boardId) => {
-    if (!window.confirm('Are you sure you want to delete this board? This action cannot be undone.')) {
+    if (!window.confirm('Czy na pewno chcesz usunac ta tablice? Nie bedzie mozna tego cofnac.')) {
       return;
     }
 
@@ -136,7 +136,7 @@ const Boards = () => {
           <div className="boards-layout">
             <div className="boards-container">
               {boards.length === 0 ? (
-                <p>No boards found. Create a new board to get started.</p>
+                <p>Nie znaleziono tablic. Stwórz nową tablicę aby zacząć.</p>
               ) : (
                 boards.map(board => (
                   <div key={board.id} className="board-card">
@@ -146,14 +146,14 @@ const Boards = () => {
                         className="view-board-btn" 
                         onClick={() => handleViewBoard(board.id)}
                       >
-                        View Board
+                        Pokaz Tabele
                       </button>
 
                       <button 
                         className="manage-members-btn" 
                         onClick={() => handleSelectBoard(board.id)}
                       >
-                        Manage Members
+                        Zarzadzaj uzytkownikami
                       </button>
 
                       {/* Only show delete button if user is the owner */}
@@ -162,7 +162,7 @@ const Boards = () => {
                           className="delete-board-btn danger-btn" 
                           onClick={() => handleDeleteBoard(board.id)}
                         >
-                          Delete
+                          Usuń
                         </button>
                       )}
                     </div>

@@ -10,6 +10,7 @@ import Boards from './pages/Boards';
 import BoardDetail from './pages/BoardDetail';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import User from './pages/User';
 import NotFound from './pages/NotFound';
 
 // Context
@@ -27,6 +28,7 @@ function App() {
             <Route path="/boards/:boardId" element={<BoardDetail />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/user" element={<User />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
